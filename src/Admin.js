@@ -19,13 +19,13 @@ function Admin({ logout }) {
   }, []);
 
   function carregarProdutos() {
-    axios.get("http://localhost:3000/produtos")
+    axios.get("https://sacolao-api.onrender.com/produtos")
       .then(res => setProdutos(res.data))
       .catch(err => console.log(err));
   }
 
   function carregarPedidos() {
-    axios.get("http://localhost:3000/pedidos")
+    axios.get("https://sacolao-api.onrender.com/produtos")
       .then(res => setPedidos(res.data))
       .catch(err => console.log(err));
   }
@@ -39,7 +39,7 @@ function Admin({ logout }) {
       return;
     }
 
-    axios.post("http://localhost:3000/produtos", {
+    axios.post("https://sacolao-api.onrender.com/produtos", {
       nome,
       preco: Number(preco),
       imagem

@@ -27,7 +27,7 @@ function App() {
   // LOGIN
   // =======================
   function handleLogin(email, senha) {
-    axios.post("http://localhost:3000/login", {
+    axios.post("https://sacolao-api.onrender.com/login", {
       email,
       senha
     })
@@ -55,7 +55,7 @@ function App() {
   // =======================
   useEffect(() => {
     axios
-      .get("http://localhost:3000/produtos")
+      .get("https://sacolao-api.onrender.com/produtos")
       .then((res) => setProdutos(res.data))
       .catch((err) => console.log(err));
   }, []);
