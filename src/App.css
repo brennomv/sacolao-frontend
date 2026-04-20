@@ -1,0 +1,424 @@
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+}
+
+/* =======================
+   CONTAINER
+======================= */
+.container {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+/* =======================
+   TOPO
+======================= */
+.topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.logo {
+  width: 250px;
+}
+
+/* =======================
+   TÍTULOS
+======================= */
+h2 {
+  color: #2e7d32;
+  margin-top: 20px;
+}
+
+/* =======================
+   PRODUTOS
+======================= */
+.produtos {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* =======================
+   CARD
+======================= */
+.card {
+  width: 150px;
+  height: auto;
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.imagem-produto {
+  width: 80%;
+  height: 100px;
+  object-fit: cover;
+}
+
+.info {
+  padding: 10px;
+}
+
+.preco {
+  color: #2e7d32;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* =======================
+   BOTÃO PRODUTO
+======================= */
+.btn-produto {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  background: #2e7d32;
+  color: white;
+  cursor: pointer;
+}
+
+.btn-produto:hover {
+  background: #1b5e20;
+}
+
+/* =======================
+   CARRINHO ICON
+======================= */
+.carrinho-icon {
+  background: #2e7d32;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 50%;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* =======================
+   BACKDROP
+======================= */
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  z-index: 999;
+}
+
+/* =======================
+   CARRINHO LATERAL (iFOOD)
+======================= */
+.cart-panel {
+  position: fixed;
+  top: 0;
+  right: -380px;
+  width: 320px;
+  height: 100vh;
+  background: white;
+  box-shadow: -5px 0 20px rgba(0,0,0,0.2);
+  z-index: 1000;
+
+  display: flex;
+  flex-direction: column;
+
+  padding: 15px;
+  transition: right 0.3s ease;
+  overflow-y: auto;
+}
+
+.cart-panel.open {
+  right: 0;
+}
+
+/* =======================
+   HEADER CARRINHO
+======================= */
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+/* =======================
+   ITEM CARRINHO
+======================= */
+.item-carrinho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* =======================
+   BOTÕES + e -
+======================= */
+.qty {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.qty button {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: #eee;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.qty button:hover {
+  background: #ddd;
+}
+
+/* =======================
+   INPUT CLIENTE
+======================= */
+.input-cliente {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* =======================
+   BOTÃO FINALIZAR
+======================= */
+.finalizar-btn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  background: #ff9800;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.finalizar-btn:hover {
+  background: #e68900;
+}
+
+/* =======================
+   BOTÃO FECHAR
+======================= */
+.btn-fechar {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  width: 26px;
+  height: 26px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-fechar:hover {
+  color: red;
+}
+
+/* =======================
+   ANIMAÇÃO
+======================= */
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.secao-ofertas {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+/* garante que o título não fique colado */
+.secao-ofertas h2 {
+  margin: 0;
+}
+
+/* carrinho pode ser reposicionado se quiser */
+.carrinho-icon {
+  position: relative;
+}
+
+
+/* =======================
+   LOGO CENTRALIZADA
+======================= */
+.topo-central {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* =======================
+   BARRA OFERTAS + CARRINHO
+======================= */
+.barra-ofertas {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.barra-ofertas h2 {
+  margin: 0;
+}
+
+/* carrinho alinhado corretamente */
+.carrinho-icon {
+  background: #2e7d32;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 50%;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+
+.admin-container {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+  font-family: Arial;
+}
+
+.card-admin {
+  background: white;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+
+.card-admin input {
+  display: block;
+  width: 100%;
+  margin: 8px 0;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.card-admin button {
+  background: #2e7d32;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.card-admin button:hover {
+  background: #1b5e20;
+}
+
+.item-admin {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.login-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+}
+
+.login-logo {
+  width: 180px;
+  margin-bottom: 30px;
+}
+
+.login-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 280px;
+}
+
+.login-input {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.login-button {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #2e7d32;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.login-button:hover {
+  background: #1b5e20;
+}
+
+.btn-sair {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: #d32f2f;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-sair:hover {
+  background: #b71c1c;
+}
+
+.btn-sair-cliente {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: #d32f2f;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  z-index: 1000;
+}
+
+.btn-sair-cliente:hover {
+  background: #b71c1c;
+}
