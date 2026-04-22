@@ -49,13 +49,18 @@ h2 {
    CARD
 ======================= */
 .card {
-  width: 150px;
+  width: 140px;
+  transition: 0.2s;
   height: auto;
   border-radius: 10px;
   overflow: hidden;
   background: white;
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   text-align: center;
+}
+
+.card:hover {
+  transform: scale(1.05);
 }
 
 .imagem-produto {

@@ -5,7 +5,7 @@ import "./App.css";
 function Admin({ logout }) {
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
-  const [imagem, setImagem] = useState("");
+  const [imagem, setImagem] = useState(null);
 
   const [produtos, setProdutos] = useState([]);
   const [pedidos, setPedidos] = useState([]);
@@ -34,24 +34,24 @@ function Admin({ logout }) {
   // CRIAR PRODUTO
   // =======================
   function criarProduto() {
-    if (!nome || !preco || !imagem) {
-      alert("Preencha todos os campos!");
-      return;
-    }
+  if (!nome || !preco || !imagem) {
+    alert("Preencha todos os campos!");
+    return;
+  }
 
-    axios.post("https://sacolao-api.onrender.com/produtos", {
-      nome,
-      preco: Number(preco),
-      imagem
-    })
+  const formData = new FormData();
+  formData.append("nome", nome);
+  formData.append("preco", preco);
+  formData.append("imagem", imagem);
+
+  axios.post("https://sacolao-api.onrender.com/produtos", formData)
     .then(() => {
       setNome("");
       setPreco("");
-      setImagem("");
+      setImagem(null);
       carregarProdutos();
-    })
-    .catch(err => console.log(err));
-  }
+    });
+}
 
   return (
     <div className="admin-container">
@@ -83,9 +83,8 @@ function Admin({ logout }) {
         />
 
         <input
-          placeholder="URL da imagem"
-          value={imagem}
-          onChange={(e) => setImagem(e.target.value)}
+          type="file"
+          onChange={(e) => setImagem(e.target.files[0])}
         />
 
         <button onClick={criarProduto}>
