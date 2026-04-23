@@ -31,14 +31,13 @@ function Cliente({
         ⬅ Sair
       </button>
 
-      {/* LOGO CENTRAL */}
+      {/* LOGO */}
       <div className="topo-central">
         <img src={logo} alt="logo" className="logo" />
       </div>
 
-      {/* BARRA OFERTAS + CARRINHO */}
+      {/* BARRA */}
       <div className="barra-ofertas">
-
         <h2 className="titulo-ofertas">🔥 Ofertas</h2>
 
         <div
@@ -47,18 +46,20 @@ function Cliente({
         >
           🛒 {carrinho.length}
         </div>
-
       </div>
 
-      {/* PRODUTOS DESTAQUE */}
+      {/* DESTAQUE */}
       <div className="produtos">
         {produtos.slice(0, 3).map((p) => (
           <div key={p.id} className="card">
 
             <img
-              src={p.imagem}
+              src={p.imagem || "https://via.placeholder.com/120"}
               alt={p.nome}
               style={{ width: "120px", height: "120px", objectFit: "cover" }}
+              onError={(e) => {
+                e.target.src = "https://via.placeholder.com/120";
+              }}
             />
 
             <div className="info">
@@ -77,7 +78,7 @@ function Cliente({
         ))}
       </div>
 
-      {/* PRODUTOS */}
+      {/* LISTA */}
       <h2>🛒 Produtos</h2>
 
       <div className="produtos">
@@ -85,9 +86,12 @@ function Cliente({
           <div key={p.id} className="card">
 
             <img
-              src={p.imagem}
+              src={p.imagem || "https://via.placeholder.com/120"}
               alt={p.nome}
-              className="imagem-produto"
+              style={{ width: "120px", height: "120px", objectFit: "cover" }}
+              onError={(e) => {
+                e.target.src = "https://via.placeholder.com/120";
+              }}
             />
 
             <div className="info">
@@ -106,7 +110,7 @@ function Cliente({
         ))}
       </div>
 
-      {/* CARRINHO LATERAL */}
+      {/* CARRINHO */}
       <div className={`cart-panel ${abrirCarrinho ? "open" : ""}`}>
 
         <div className="cart-header">
@@ -125,7 +129,6 @@ function Cliente({
         ) : (
           carrinho.map((p) => (
             <div key={p.id} className="item-carrinho">
-
               <span>{p.nome}</span>
 
               <div className="qty">
@@ -133,7 +136,6 @@ function Cliente({
                 <span>{p.quantidade}</span>
                 <button onClick={() => aumentar(p.id)}>➕</button>
               </div>
-
             </div>
           ))
         )}

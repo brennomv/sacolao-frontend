@@ -19,21 +19,25 @@ function Admin({ logout }) {
   }, []);
 
   function carregarProdutos() {
-    axios.get("https://sacolao-api.onrender.com/produtos")
-      .then(res => setProdutos(res.data))
-      .catch(err => console.log(err));
+    axios
+      .get("https://sacolao-api.onrender.com/produtos")
+      .then((res) => setProdutos(res.data))
+      .catch((err) => console.log(err));
   }
 
   function carregarPedidos() {
-    axios.get("https://sacolao-api.onrender.com/pedidos") // ✅ corrigido
-      .then(res => setPedidos(res.data))
-      .catch(err => console.log(err));
+    axios
+      .get("https://sacolao-api.onrender.com/pedidos")
+      .then((res) => setPedidos(res.data))
+      .catch((err) => console.log(err));
   }
 
   // =======================
   // CRIAR PRODUTO
   // =======================
-  function criarProduto() {
+  function criarProduto(e) {
+    if (e) e.preventDefault();
+
     if (!nome || !preco || !imagem) {
       alert("Preencha todos os campos!");
       return;
@@ -44,23 +48,18 @@ function Admin({ logout }) {
     formData.append("preco", preco);
     formData.append("imagem", imagem);
 
-    axios.post("https://sacolao-api.onrender.com/produtos", formData)
+    axios
+      .post("https://sacolao-api.onrender.com/produtos", formData)
       .then(() => {
-
-        // ✅ MENSAGEM
         alert("Produto cadastrado com sucesso!");
 
-        // ✅ LIMPAR CAMPOS
+        // LIMPAR CAMPOS
         setNome("");
         setPreco("");
         setImagem(null);
-
-        // ✅ LIMPAR INPUT FILE
         document.getElementById("inputImagem").value = "";
 
-        // ✅ ATUALIZAR LISTA
         carregarProdutos();
-
       })
       .catch(() => {
         alert("Erro ao cadastrar produto");
@@ -72,8 +71,7 @@ function Admin({ logout }) {
   // =======================
   return (
     <div className="admin-container">
-
-      {/* TOPO ADMIN */}
+      {/* TOPO */}
       <div className="admin-topo">
         <h1>🧑‍💼 Painel Admin</h1>
 
@@ -82,9 +80,8 @@ function Admin({ logout }) {
         </button>
       </div>
 
-      {/* CADASTRAR PRODUTO */}
+      {/* CADASTRO */}
       <div className="card-admin">
-
         <h2>📦 Cadastrar Produto</h2>
 
         <input
@@ -102,49 +99,53 @@ function Admin({ logout }) {
         <input
           id="inputImagem"
           type="file"
+          accept="image/*"
           onChange={(e) => setImagem(e.target.files[0])}
         />
 
-        <button onClick={criarProduto}>
+        <button type="button" onClick={criarProduto}>
           Criar Produto
         </button>
-
       </div>
 
       {/* PRODUTOS */}
       <div className="card-admin">
-
         <h2>📦 Produtos</h2>
 
         {produtos.map((p) => (
           <div key={p.id} className="item-admin">
+            <img
+              src={p.imagem}
+              alt={p.nome}
+              style={{
+                width: "60px",
+                height: "60px",
+                objectFit: "cover",
+                marginRight: "10px"
+              }}
+            />
+
             <span>{p.nome}</span>
             <span>R$ {p.preco}</span>
           </div>
         ))}
-
       </div>
 
       {/* PEDIDOS */}
       <div className="card-admin">
-
         <h2>🛒 Pedidos</h2>
 
         {pedidos.map((p) => (
           <div key={p.id} className="item-admin">
-
             <div>
               <strong>{p.nome}</strong>
               <p>{p.endereco}</p>
             </div>
 
             <span>R$ {p.total}</span>
-
           </div>
         ))}
-
       </div>
-
     </div>
   );
 }
