@@ -25,7 +25,7 @@ function Admin({ logout }) {
   }
 
   function carregarPedidos() {
-    axios.get("https://sacolao-api.onrender.com/produtos")
+    axios.get("https://sacolao-api.onrender.com/pedidos") // ✅ corrigido
       .then(res => setPedidos(res.data))
       .catch(err => console.log(err));
   }
@@ -34,38 +34,42 @@ function Admin({ logout }) {
   // CRIAR PRODUTO
   // =======================
   function criarProduto() {
-  if (!nome || !preco || !imagem) {
-    alert("Preencha todos os campos!");
-    return;
+    if (!nome || !preco || !imagem) {
+      alert("Preencha todos os campos!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("nome", nome);
+    formData.append("preco", preco);
+    formData.append("imagem", imagem);
+
+    axios.post("https://sacolao-api.onrender.com/produtos", formData)
+      .then(() => {
+
+        // ✅ MENSAGEM
+        alert("Produto cadastrado com sucesso!");
+
+        // ✅ LIMPAR CAMPOS
+        setNome("");
+        setPreco("");
+        setImagem(null);
+
+        // ✅ LIMPAR INPUT FILE
+        document.getElementById("inputImagem").value = "";
+
+        // ✅ ATUALIZAR LISTA
+        carregarProdutos();
+
+      })
+      .catch(() => {
+        alert("Erro ao cadastrar produto");
+      });
   }
 
-  const formData = new FormData();
-  formData.append("nome", nome);
-  formData.append("preco", preco);
-  formData.append("imagem", imagem);
-
-  axios.post("https://sacolao-api.onrender.com/produtos", formData)
-  .then(() => {
-
-    // ✅ MENSAGEM
-    alert("Produto cadastrado com sucesso!");
-
-    // ✅ LIMPAR CAMPOS
-    setNome("");
-    setPreco("");
-    setImagem(null);
-
-    // ✅ LIMPAR INPUT FILE
-    document.getElementById("inputImagem").value = "";
-
-    // ✅ ATUALIZAR LISTA
-    carregarProdutos();
-
-  })
-  .catch(() => {
-    alert("Erro ao cadastrar produto");
-  });
-
+  // =======================
+  // RENDER
+  // =======================
   return (
     <div className="admin-container">
 
@@ -96,9 +100,9 @@ function Admin({ logout }) {
         />
 
         <input
-            id="inputImagem"
-            type="file"
-            onChange={(e) => setImagem(e.target.files[0])}
+          id="inputImagem"
+          type="file"
+          onChange={(e) => setImagem(e.target.files[0])}
         />
 
         <button onClick={criarProduto}>

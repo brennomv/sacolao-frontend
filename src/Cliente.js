@@ -56,9 +56,9 @@ function Cliente({
           <div key={p.id} className="card">
 
             <img
-                src={produto.imagem}
-                alt={produto.nome}
-                style={{ width: "120px", height: "120px", objectFit: "cover" }}
+              src={p.imagem}
+              alt={p.nome}
+              style={{ width: "120px", height: "120px", objectFit: "cover" }}
             />
 
             <div className="info">
