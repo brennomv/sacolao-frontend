@@ -45,13 +45,26 @@ function Admin({ logout }) {
   formData.append("imagem", imagem);
 
   axios.post("https://sacolao-api.onrender.com/produtos", formData)
-    .then(() => {
-      setNome("");
-      setPreco("");
-      setImagem(null);
-      carregarProdutos();
-    });
-}
+  .then(() => {
+
+    // ✅ MENSAGEM
+    alert("Produto cadastrado com sucesso!");
+
+    // ✅ LIMPAR CAMPOS
+    setNome("");
+    setPreco("");
+    setImagem(null);
+
+    // ✅ LIMPAR INPUT FILE
+    document.getElementById("inputImagem").value = "";
+
+    // ✅ ATUALIZAR LISTA
+    carregarProdutos();
+
+  })
+  .catch(() => {
+    alert("Erro ao cadastrar produto");
+  });
 
   return (
     <div className="admin-container">
@@ -83,8 +96,9 @@ function Admin({ logout }) {
         />
 
         <input
-          type="file"
-          onChange={(e) => setImagem(e.target.files[0])}
+            id="inputImagem"
+            type="file"
+            onChange={(e) => setImagem(e.target.files[0])}
         />
 
         <button onClick={criarProduto}>
