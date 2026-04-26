@@ -6,9 +6,13 @@ function Admin({ logout }) {
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
   const [imagem, setImagem] = useState(null);
+  const [preview, setPreview] = useState(null);
 
   const [produtos, setProdutos] = useState([]);
   const [pedidos, setPedidos] = useState([]);
+
+  const [loading, setLoading] = useState(false);
+  const [mensagem, setMensagem] = useState("");
 
   // =======================
   // CARREGAR DADOS
@@ -39,7 +43,7 @@ function Admin({ logout }) {
     if (e) e.preventDefault();
 
     if (!nome || !preco || !imagem) {
-      alert("Preencha todos os campos!");
+      setMensagem("⚠️ Preencha todos os campos!");
       return;
     }
 
@@ -48,21 +52,46 @@ function Admin({ logout }) {
     formData.append("preco", preco);
     formData.append("imagem", imagem);
 
+    setLoading(true);
+    setMensagem("");
+
     axios
       .post("https://sacolao-api.onrender.com/produtos", formData)
       .then(() => {
-        alert("Produto cadastrado com sucesso!");
+        setMensagem("✅ Produto cadastrado com sucesso!");
 
         // LIMPAR CAMPOS
         setNome("");
         setPreco("");
         setImagem(null);
-        document.getElementById("inputImagem").value = "";
+        setPreview(null);
+
+        const input = document.getElementById("inputImagem");
+        if (input) input.value = "";
 
         carregarProdutos();
       })
       .catch(() => {
-        alert("Erro ao cadastrar produto");
+        setMensagem("❌ Erro ao cadastrar produto");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }
+
+  // =======================
+  // DELETAR PRODUTO
+  // =======================
+  function deletarProduto(id) {
+    if (!window.confirm("Deseja realmente excluir?")) return;
+
+    axios
+      .delete(`https://sacolao-api.onrender.com/produtos/${id}`)
+      .then(() => {
+        carregarProdutos();
+      })
+      .catch(() => {
+        setMensagem("❌ Erro ao deletar produto");
       });
   }
 
@@ -71,6 +100,7 @@ function Admin({ logout }) {
   // =======================
   return (
     <div className="admin-container">
+
       {/* TOPO */}
       <div className="admin-topo">
         <h1>🧑‍💼 Painel Admin</h1>
@@ -79,6 +109,13 @@ function Admin({ logout }) {
           ⬅ Sair
         </button>
       </div>
+
+      {/* MENSAGEM */}
+      {mensagem && (
+        <p style={{ margin: "10px 0", fontWeight: "bold" }}>
+          {mensagem}
+        </p>
+      )}
 
       {/* CADASTRO */}
       <div className="card-admin">
@@ -99,12 +136,32 @@ function Admin({ logout }) {
         <input
           id="inputImagem"
           type="file"
-          accept="image/*"
-          onChange={(e) => setImagem(e.target.files[0])}
+          onChange={(e) => {
+            const file = e.target.files[0];
+            setImagem(file);
+
+            if (file) {
+              setPreview(URL.createObjectURL(file));
+            }
+          }}
         />
 
-        <button type="button" onClick={criarProduto}>
-          Criar Produto
+        {/* PREVIEW */}
+        {preview && (
+          <img
+            src={preview}
+            alt="preview"
+            style={{
+              width: "120px",
+              marginTop: "10px",
+              borderRadius: "8px"
+            }}
+          />
+        )}
+
+        {/* BOTÃO */}
+        <button onClick={criarProduto} disabled={loading}>
+          {loading ? "Enviando..." : "Criar Produto"}
         </button>
       </div>
 
@@ -113,7 +170,8 @@ function Admin({ logout }) {
         <h2>📦 Produtos</h2>
 
         {produtos.map((p) => (
-          <div key={p.id} className="item-admin">
+          <div key={p.id} className="item-admin" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+
             <img
               src={p.imagem}
               alt={p.nome}
@@ -121,12 +179,20 @@ function Admin({ logout }) {
                 width: "60px",
                 height: "60px",
                 objectFit: "cover",
-                marginRight: "10px"
+                borderRadius: "6px"
               }}
             />
 
             <span>{p.nome}</span>
             <span>R$ {p.preco}</span>
+
+            <button
+              onClick={() => deletarProduto(p.id)}
+              style={{ marginLeft: "auto" }}
+            >
+              ❌
+            </button>
+
           </div>
         ))}
       </div>
@@ -137,15 +203,18 @@ function Admin({ logout }) {
 
         {pedidos.map((p) => (
           <div key={p.id} className="item-admin">
+
             <div>
               <strong>{p.nome}</strong>
               <p>{p.endereco}</p>
             </div>
 
             <span>R$ {p.total}</span>
+
           </div>
         ))}
       </div>
+
     </div>
   );
 }
