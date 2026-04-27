@@ -41,26 +41,36 @@ function Admin({ logout }) {
   // LOADERS
   // =======================
   function carregarProdutos() {
-    axios.get(`${API}/produtos`)
-      .then(res => setProdutos(res.data))
-      .catch(() => setMensagem("❌ Erro ao carregar produtos"));
-  }
+  axios.get(`${API}/produtos`)
+    .then(res => {
+      setProdutos(res.data);
+      setMensagem(""); // 🔥 limpa erro antigo
+    })
+    .catch(() => {
+      setMensagem("❌ Erro ao carregar produtos");
+    });
+}
 
   function carregarPedidos() {
-    axios.get(`${API}/pedidos`)
-      .then(res => setPedidos(res.data))
-      .catch(() => console.log("Erro ao carregar pedidos"));
-  }
+  axios.get(`${API}/pedidos`)
+    .then(res => {
+      setPedidos(res.data);
+    })
+    .catch(() => {
+      console.log("Erro ao carregar pedidos");
+    });
+}
 
   function carregarConfig() {
-    axios.get(`${API}/config`)
-      .then(res => {
-        if (res.data?.whatsapp) {
-          setWhatsapp(res.data.whatsapp);
-        }
-      })
-      .catch(() => setMensagem("❌ Erro ao carregar config"));
-  }
+  axios.get(`${API}/config`)
+    .then(res => {
+      if (res.data?.whatsapp) {
+        setWhatsapp(res.data.whatsapp);
+      }
+      setMensagem(""); // 🔥 limpa erro antigo
+    })
+    .catch(() => setMensagem("❌ Erro ao carregar config"));
+}
 
   // =======================
   // WHATSAPP
@@ -162,11 +172,9 @@ function Admin({ logout }) {
       </div>
 
       {/* MENSAGEM */}
-      {mensagem && (
-        <p style={{ fontWeight: "bold", margin: "10px 0" }}>
-          {mensagem}
-        </p>
-      )}
+      {mensagem && mensagem.includes("❌") && (
+  <p style={{ color: "red" }}>{mensagem}</p>
+)}
 
       {/* WHATSAPP */}
       <div className="card-admin">
