@@ -19,10 +19,12 @@ function Admin({ logout }) {
   const [mensagem, setMensagem] = useState("");
 
   // =======================
-  // INIT
+  // INIT (CORRIGIDO)
   // =======================
   useEffect(() => {
-    carregarTudo();
+    carregarProdutos();
+    carregarPedidos();
+    carregarConfig();
 
     const intervalo = setInterval(() => {
       carregarPedidos();
@@ -30,12 +32,6 @@ function Admin({ logout }) {
 
     return () => clearInterval(intervalo);
   }, []);
-
-  function carregarTudo() {
-    carregarProdutos();
-    carregarPedidos();
-    carregarConfig();
-  }
 
   // =======================
   // LOADERS
