@@ -1,42 +1,48 @@
-.login-container {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
+import { useState } from "react";
+import "./App.css";
+import logo from "./assets/logo.png";
+
+function Login({ onLogin }) {
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    onLogin(email, senha);
+  }
+
+  return (
+    <div className="login-container">
+
+      {/* LOGO */}
+      <img src={logo} alt="logo" className="login-logo" />
+
+      {/* FORM */}
+      <form className="login-box" onSubmit={handleSubmit}>
+
+        <input
+          type="email"
+          placeholder="E-mail"
+          className="login-input"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <input
+          type="password"
+          placeholder="Senha"
+          className="login-input"
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
+        />
+
+        <button className="login-button">
+          Entrar
+        </button>
+
+      </form>
+    </div>
+  );
 }
 
-.login-logo {
-  width: 140px;
-  margin-bottom: 30px;
-}
-
-.login-box {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 280px;
-}
-
-.login-input {
-  padding: 12px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  outline: none;
-  font-size: 14px;
-}
-
-.login-button {
-  padding: 12px;
-  background: #2ecc71;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.login-button:hover {
-  background: #27ae60;
-}
+export default Login;
