@@ -1,3 +1,6 @@
+import { useEffect } from "react";
+import "./App.css";
+
 function Cliente({
   produtos,
   carrinho,
@@ -15,6 +18,21 @@ function Cliente({
   logo,
   logout
 }) {
+
+  // =======================
+  // UX: FECHAR COM ESC
+  // =======================
+  useEffect(() => {
+    function handleEsc(e) {
+      if (e.key === "Escape") {
+        setAbrirCarrinho(false);
+      }
+    }
+
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [setAbrirCarrinho]);
+
   return (
     <div className="container">
 
@@ -44,7 +62,7 @@ function Cliente({
           className="carrinho-icon"
           onClick={() => setAbrirCarrinho(true)}
         >
-          🛒 {carrinho.length}
+          🛒 {carrinho.reduce((total, p) => total + p.quantidade, 0)}
         </div>
       </div>
 
@@ -56,7 +74,7 @@ function Cliente({
             <img
               src={p.imagem || "https://via.placeholder.com/120"}
               alt={p.nome}
-              style={{ width: "120px", height: "120px", objectFit: "cover" }}
+              className="img-produto"
               onError={(e) => {
                 e.target.src = "https://via.placeholder.com/120";
               }}
@@ -64,7 +82,7 @@ function Cliente({
 
             <div className="info">
               <h3>{p.nome}</h3>
-              <p className="preco">R$ {p.preco}</p>
+              <p className="preco">R$ {Number(p.preco).toFixed(2)}</p>
             </div>
 
             <button
@@ -88,7 +106,7 @@ function Cliente({
             <img
               src={p.imagem || "https://via.placeholder.com/120"}
               alt={p.nome}
-              style={{ width: "120px", height: "120px", objectFit: "cover" }}
+              className="img-produto"
               onError={(e) => {
                 e.target.src = "https://via.placeholder.com/120";
               }}
@@ -96,7 +114,7 @@ function Cliente({
 
             <div className="info">
               <h3>{p.nome}</h3>
-              <p className="preco">R$ {p.preco}</p>
+              <p className="preco">R$ {Number(p.preco).toFixed(2)}</p>
             </div>
 
             <button
@@ -125,7 +143,9 @@ function Cliente({
         </div>
 
         {carrinho.length === 0 ? (
-          <p>Seu carrinho está vazio</p>
+          <p style={{ textAlign: "center" }}>
+            Seu carrinho está vazio
+          </p>
         ) : (
           carrinho.map((p) => (
             <div key={p.id} className="item-carrinho">
@@ -140,6 +160,7 @@ function Cliente({
           ))
         )}
 
+        {/* DADOS CLIENTE */}
         <input
           className="input-cliente"
           placeholder="Seu nome"
@@ -159,6 +180,7 @@ function Cliente({
         <button
           className="finalizar-btn"
           onClick={finalizarPedido}
+          disabled={carrinho.length === 0}
         >
           Finalizar Pedido
         </button>

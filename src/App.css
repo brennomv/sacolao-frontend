@@ -1,8 +1,7 @@
-
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f5f5f5;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background: linear-gradient(135deg, #f5f5f5, #e8f5e9);
 }
 
 /* =======================
@@ -15,60 +14,92 @@ body {
 }
 
 /* =======================
-   TOPO
+   LOGO CENTRAL
 ======================= */
-.topo {
+.topo-central {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  justify-content: center;
+  margin-bottom: 10px;
 }
 
 .logo {
-  width: 250px;
+  width: 220px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
 
 /* =======================
    TÍTULOS
 ======================= */
 h2 {
-  color: #2e7d32;
-  margin-top: 20px;
+  color: #1b5e20;
+  font-weight: 600;
 }
 
 /* =======================
-   PRODUTOS
+   BARRA SUPERIOR
+======================= */
+.barra-ofertas {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0;
+}
+
+/* =======================
+   CARRINHO ICON
+======================= */
+.carrinho-icon {
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 50%;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: 0.2s;
+}
+
+.carrinho-icon:hover {
+  transform: scale(1.1);
+}
+
+/* =======================
+   PRODUTOS GRID
 ======================= */
 .produtos {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
 }
 
 /* =======================
-   CARD
+   CARD PRODUTO
 ======================= */
 .card {
-  width: 140px;
-  transition: 0.2s;
-  height: auto;
-  border-radius: 10px;
-  overflow: hidden;
   background: white;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 14px;
+  overflow: hidden;
   text-align: center;
+  transition: 0.2s;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
 }
 
 .card:hover {
-  transform: scale(1.05);
+  transform: translateY(-5px);
 }
 
-.imagem-produto {
-  width: 80%;
-  height: 100px;
+/* =======================
+   IMAGEM
+======================= */
+.img-produto {
+  width: 100%;
+  height: 120px;
   object-fit: cover;
 }
 
+/* =======================
+   INFO
+======================= */
 .info {
   padding: 10px;
 }
@@ -86,25 +117,15 @@ h2 {
   width: 100%;
   padding: 10px;
   border: none;
-  background: #2e7d32;
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
   color: white;
   cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
 }
 
 .btn-produto:hover {
-  background: #1b5e20;
-}
-
-/* =======================
-   CARRINHO ICON
-======================= */
-.carrinho-icon {
-  background: #2e7d32;
-  color: white;
-  padding: 10px 15px;
-  border-radius: 50%;
-  font-weight: bold;
-  cursor: pointer;
+  background: linear-gradient(135deg, #1b5e20, #0d3b12);
 }
 
 /* =======================
@@ -121,7 +142,7 @@ h2 {
 }
 
 /* =======================
-   CARRINHO LATERAL (iFOOD)
+   CARRINHO LATERAL
 ======================= */
 .cart-panel {
   position: fixed;
@@ -130,12 +151,11 @@ h2 {
   width: 320px;
   height: 100vh;
   background: white;
-  box-shadow: -5px 0 20px rgba(0,0,0,0.2);
+  box-shadow: -5px 0 25px rgba(0,0,0,0.3);
   z-index: 1000;
 
   display: flex;
   flex-direction: column;
-
   padding: 15px;
   transition: right 0.3s ease;
   overflow-y: auto;
@@ -146,13 +166,12 @@ h2 {
 }
 
 /* =======================
-   HEADER CARRINHO
+   HEADER
 ======================= */
 .cart-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
 }
 
 /* =======================
@@ -161,27 +180,24 @@ h2 {
 .item-carrinho {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+  margin: 10px 0;
 }
 
 /* =======================
-   BOTÕES + e -
+   BOTÕES QTD
 ======================= */
 .qty {
   display: flex;
-  align-items: center;
   gap: 5px;
 }
 
 .qty button {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border: none;
   background: #eee;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
 }
 
 .qty button:hover {
@@ -189,14 +205,20 @@ h2 {
 }
 
 /* =======================
-   INPUT CLIENTE
+   INPUTS
 ======================= */
 .input-cliente {
   width: 100%;
   margin-top: 10px;
-  padding: 10px;
+  padding: 12px;
   border-radius: 8px;
   border: 1px solid #ccc;
+  transition: 0.2s;
+}
+
+.input-cliente:focus {
+  border-color: #2e7d32;
+  outline: none;
 }
 
 /* =======================
@@ -206,128 +228,41 @@ h2 {
   width: 100%;
   margin-top: 10px;
   padding: 12px;
-  background: #ff9800;
+  background: linear-gradient(135deg, #ff9800, #f57c00);
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
+  transition: 0.2s;
 }
 
 .finalizar-btn:hover {
-  background: #e68900;
+  transform: scale(1.03);
 }
 
 /* =======================
-   BOTÃO FECHAR
+   ADMIN
 ======================= */
-.btn-fechar {
-  background: transparent;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  width: 26px;
-  height: 26px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-fechar:hover {
-  color: red;
-}
-
-/* =======================
-   ANIMAÇÃO
-======================= */
-@keyframes aparecer {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.secao-ofertas {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-}
-
-/* garante que o título não fique colado */
-.secao-ofertas h2 {
-  margin: 0;
-}
-
-/* carrinho pode ser reposicionado se quiser */
-.carrinho-icon {
-  position: relative;
-}
-
-
-/* =======================
-   LOGO CENTRALIZADA
-======================= */
-.topo-central {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-/* =======================
-   BARRA OFERTAS + CARRINHO
-======================= */
-.barra-ofertas {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  margin-top: 10px;
-  margin-bottom: 20px;
-}
-
-.barra-ofertas h2 {
-  margin: 0;
-}
-
-/* carrinho alinhado corretamente */
-.carrinho-icon {
-  background: #2e7d32;
-  color: white;
-  padding: 10px 14px;
-  border-radius: 50%;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-
 .admin-container {
   padding: 20px;
   max-width: 900px;
   margin: auto;
-  font-family: Arial;
 }
 
 .card-admin {
   background: white;
   padding: 15px;
   margin-bottom: 20px;
-  border-radius: 10px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 }
 
 .card-admin input {
-  display: block;
   width: 100%;
   margin: 8px 0;
   padding: 10px;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid #ccc;
 }
 
@@ -336,7 +271,7 @@ h2 {
   color: white;
   border: none;
   padding: 10px;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
 }
 
@@ -344,31 +279,33 @@ h2 {
   background: #1b5e20;
 }
 
+/* =======================
+   LISTA ADMIN
+======================= */
 .item-admin {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
+  align-items: center;
+  padding: 10px 0;
   border-bottom: 1px solid #eee;
 }
 
+/* =======================
+   LOGIN
+======================= */
 .login-container {
   height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #f5f5f5;
-}
-
-.login-logo {
-  width: 180px;
-  margin-bottom: 30px;
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
 }
 
 .login-box {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
   width: 280px;
 }
 
@@ -376,7 +313,6 @@ h2 {
   padding: 12px;
   border-radius: 8px;
   border: 1px solid #ccc;
-  outline: none;
 }
 
 .login-button {
@@ -389,27 +325,10 @@ h2 {
   cursor: pointer;
 }
 
-.login-button:hover {
-  background: #1b5e20;
-}
-
-.btn-sair {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: #d32f2f;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.btn-sair:hover {
-  background: #b71c1c;
-}
-
+/* =======================
+   BOTÕES SAIR
+======================= */
+.btn-sair,
 .btn-sair-cliente {
   position: absolute;
   top: 15px;
@@ -417,13 +336,12 @@ h2 {
   background: #d32f2f;
   color: white;
   border: none;
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: bold;
-  z-index: 1000;
 }
 
+.btn-sair:hover,
 .btn-sair-cliente:hover {
   background: #b71c1c;
 }
