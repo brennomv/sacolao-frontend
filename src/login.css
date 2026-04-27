@@ -1,48 +1,76 @@
-import { useState } from "react";
-import "./App.css";
-import logo from "./assets/logo.png";
+/* =======================
+   LOGIN CONTAINER
+======================= */
+.login-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
-function Login({ onLogin }) {
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    onLogin(email, senha);
-  }
-
-  return (
-    <div className="login-container">
-
-      {/* LOGO */}
-      <img src={logo} alt="logo" className="login-logo" />
-
-      {/* FORM */}
-      <form className="login-box" onSubmit={handleSubmit}>
-
-        <input
-          type="email"
-          placeholder="E-mail"
-          className="login-input"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <input
-          type="password"
-          placeholder="Senha"
-          className="login-input"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-        />
-
-        <button className="login-button">
-          Entrar
-        </button>
-
-      </form>
-    </div>
-  );
+  background: linear-gradient(135deg, #2e7d32, #66bb6a);
+  padding: 20px;
 }
 
-export default Login;
+/* =======================
+   LOGO
+======================= */
+.login-logo {
+  width: 140px;
+  margin-bottom: 25px;
+}
+
+/* =======================
+   BOX LOGIN
+======================= */
+.login-box {
+  width: 100%;
+  max-width: 320px;
+
+  background: white;
+  padding: 25px;
+
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* =======================
+   INPUTS
+======================= */
+.login-input {
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+
+  font-size: 14px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.login-input:focus {
+  border-color: #2e7d32;
+}
+
+/* =======================
+   BOTÃO
+======================= */
+.login-button {
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+
+  background: #2e7d32;
+  color: white;
+
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.login-button:hover {
+  background: #1b5e20;
+}
