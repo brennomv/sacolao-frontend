@@ -5,6 +5,9 @@ import "./App.css";
 const API = "https://sacolao-api.onrender.com";
 
 function Admin({ logout }) {
+  // =======================
+  // STATES
+  // =======================
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
   const [imagem, setImagem] = useState(null);
@@ -14,6 +17,7 @@ function Admin({ logout }) {
   const [pedidos, setPedidos] = useState([]);
 
   const [whatsapp, setWhatsapp] = useState("");
+  const [salvandoWhatsapp, setSalvandoWhatsapp] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [mensagem, setMensagem] = useState("");
@@ -22,9 +26,7 @@ function Admin({ logout }) {
   // INIT
   // =======================
   useEffect(() => {
-    carregarProdutos();
-    carregarPedidos();
-    carregarConfig();
+    carregarTudo();
 
     const intervalo = setInterval(() => {
       carregarPedidos();
@@ -32,6 +34,12 @@ function Admin({ logout }) {
 
     return () => clearInterval(intervalo);
   }, []);
+
+  function carregarTudo() {
+    carregarProdutos();
+    carregarPedidos();
+    carregarConfig();
+  }
 
   // =======================
   // LOADERS
@@ -45,10 +53,7 @@ function Admin({ logout }) {
   function carregarPedidos() {
     axios.get(`${API}/pedidos`)
       .then(res => setPedidos(res.data))
-      .catch(() => {
-        // 🔥 NÃO MOSTRA ERRO VISUAL (evita bug chato)
-        console.log("Erro pedidos");
-      });
+      .catch(() => console.log("Erro ao carregar pedidos"));
   }
 
   function carregarConfig() {
@@ -70,23 +75,27 @@ function Admin({ logout }) {
       return;
     }
 
+    setSalvandoWhatsapp(true);
+    setMensagem("");
+
     axios.put(`${API}/config`, { whatsapp })
-      .then(() => {
+      .then((res) => {
         setMensagem("✅ WhatsApp atualizado com sucesso");
 
-        // 🔥 LIMPA O CAMPO
-        setWhatsapp("");
+        // 🔥 sincroniza com backend
+        setWhatsapp(res.data.whatsapp || "");
 
-        // 🔥 RECARREGA DO BANCO (opcional)
+        // 🔥 limpa depois de 1s (UX melhor)
         setTimeout(() => {
-          carregarConfig();
-        }, 500);
+          setWhatsapp("");
+        }, 1000);
       })
-      .catch(() => setMensagem("❌ Erro ao salvar WhatsApp"));
+      .catch(() => setMensagem("❌ Erro ao salvar WhatsApp"))
+      .finally(() => setSalvandoWhatsapp(false));
   }
 
   // =======================
-  // PRODUTO
+  // PRODUTOS
   // =======================
   function criarProduto() {
     if (!nome || !preco || !imagem) {
@@ -100,6 +109,7 @@ function Admin({ logout }) {
     formData.append("imagem", imagem);
 
     setLoading(true);
+    setMensagem("");
 
     axios.post(`${API}/produtos`, formData)
       .then(() => {
@@ -123,8 +133,11 @@ function Admin({ logout }) {
     if (!window.confirm("Excluir produto?")) return;
 
     axios.delete(`${API}/produtos/${id}`)
-      .then(() => carregarProdutos())
-      .catch(() => setMensagem("Erro ao deletar"));
+      .then(() => {
+        setMensagem("🗑 Produto removido");
+        carregarProdutos();
+      })
+      .catch(() => setMensagem("❌ Erro ao deletar"));
   }
 
   // =======================
@@ -134,11 +147,12 @@ function Admin({ logout }) {
     const novoStatus =
       statusAtual === "pendente" ? "entregue" : "pendente";
 
-    axios.put(`${API}/pedidos/${id}`, {
-      status: novoStatus
-    })
-    .then(() => carregarPedidos())
-    .catch(() => setMensagem("Erro ao atualizar status"));
+    axios.put(`${API}/pedidos/${id}`, { status: novoStatus })
+      .then(() => {
+        setMensagem("📦 Status atualizado");
+        carregarPedidos();
+      })
+      .catch(() => setMensagem("❌ Erro ao atualizar status"));
   }
 
   // =======================
@@ -147,6 +161,7 @@ function Admin({ logout }) {
   return (
     <div className="admin-container">
 
+      {/* TOPO */}
       <div className="admin-topo">
         <h1>🧑‍💼 Painel Admin</h1>
 
@@ -155,6 +170,7 @@ function Admin({ logout }) {
         </button>
       </div>
 
+      {/* MENSAGEM */}
       {mensagem && (
         <p style={{ fontWeight: "bold", margin: "10px 0" }}>
           {mensagem}
@@ -171,8 +187,8 @@ function Admin({ logout }) {
           placeholder="Ex: 5591999999999"
         />
 
-        <button onClick={salvarWhatsapp}>
-          Salvar Número
+        <button onClick={salvarWhatsapp} disabled={salvandoWhatsapp}>
+          {salvandoWhatsapp ? "Salvando..." : "Salvar Número"}
         </button>
       </div>
 
