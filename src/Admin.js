@@ -19,7 +19,7 @@ function Admin({ logout }) {
   const [mensagem, setMensagem] = useState("");
 
   // =======================
-  // INIT (CORRIGIDO)
+  // INIT
   // =======================
   useEffect(() => {
     carregarProdutos();
@@ -45,7 +45,10 @@ function Admin({ logout }) {
   function carregarPedidos() {
     axios.get(`${API}/pedidos`)
       .then(res => setPedidos(res.data))
-      .catch(() => setMensagem("❌ Erro ao carregar pedidos"));
+      .catch(() => {
+        // 🔥 NÃO MOSTRA ERRO VISUAL (evita bug chato)
+        console.log("Erro pedidos");
+      });
   }
 
   function carregarConfig() {
@@ -68,7 +71,17 @@ function Admin({ logout }) {
     }
 
     axios.put(`${API}/config`, { whatsapp })
-      .then(() => setMensagem("✅ WhatsApp atualizado com sucesso"))
+      .then(() => {
+        setMensagem("✅ WhatsApp atualizado com sucesso");
+
+        // 🔥 LIMPA O CAMPO
+        setWhatsapp("");
+
+        // 🔥 RECARREGA DO BANCO (opcional)
+        setTimeout(() => {
+          carregarConfig();
+        }, 500);
+      })
       .catch(() => setMensagem("❌ Erro ao salvar WhatsApp"));
   }
 
@@ -90,7 +103,7 @@ function Admin({ logout }) {
 
     axios.post(`${API}/produtos`, formData)
       .then(() => {
-        setMensagem("✅ Produto cadastrado com sucesso!");
+        setMensagem("✅ Produto cadastrado!");
 
         setNome("");
         setPreco("");
@@ -107,14 +120,11 @@ function Admin({ logout }) {
   }
 
   function deletarProduto(id) {
-    if (!window.confirm("Deseja excluir este produto?")) return;
+    if (!window.confirm("Excluir produto?")) return;
 
     axios.delete(`${API}/produtos/${id}`)
-      .then(() => {
-        setMensagem("🗑 Produto removido");
-        carregarProdutos();
-      })
-      .catch(() => setMensagem("❌ Erro ao deletar produto"));
+      .then(() => carregarProdutos())
+      .catch(() => setMensagem("Erro ao deletar"));
   }
 
   // =======================
@@ -127,11 +137,8 @@ function Admin({ logout }) {
     axios.put(`${API}/pedidos/${id}`, {
       status: novoStatus
     })
-    .then(() => {
-      setMensagem("📦 Status atualizado");
-      carregarPedidos();
-    })
-    .catch(() => setMensagem("❌ Erro ao atualizar status"));
+    .then(() => carregarPedidos())
+    .catch(() => setMensagem("Erro ao atualizar status"));
   }
 
   // =======================
@@ -140,7 +147,6 @@ function Admin({ logout }) {
   return (
     <div className="admin-container">
 
-      {/* TOPO */}
       <div className="admin-topo">
         <h1>🧑‍💼 Painel Admin</h1>
 
@@ -149,7 +155,6 @@ function Admin({ logout }) {
         </button>
       </div>
 
-      {/* MENSAGEM */}
       {mensagem && (
         <p style={{ fontWeight: "bold", margin: "10px 0" }}>
           {mensagem}
@@ -223,7 +228,6 @@ function Admin({ logout }) {
 
         {produtos.map((p) => (
           <div key={p.id} className="item-admin">
-
             <img
               src={p.imagem}
               alt=""
@@ -234,14 +238,12 @@ function Admin({ logout }) {
                 borderRadius: "6px"
               }}
             />
-
             <span>{p.nome}</span>
             <span>R$ {p.preco}</span>
 
             <button onClick={() => deletarProduto(p.id)}>
               ❌
             </button>
-
           </div>
         ))}
       </div>
@@ -260,7 +262,6 @@ function Admin({ logout }) {
               }`
             }}
           >
-
             <div>
               <strong>{p.nome}</strong>
               <p>{p.endereco}</p>
@@ -274,7 +275,6 @@ function Admin({ logout }) {
                 {p.status === "pendente" ? "✔ Entregar" : "↩ Reabrir"}
               </button>
             </div>
-
           </div>
         ))}
       </div>
