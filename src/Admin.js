@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "./App.css";
 
+const API = "https://sacolao-api.onrender.com";
+
 function Admin({ logout }) {
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
@@ -11,37 +13,73 @@ function Admin({ logout }) {
   const [produtos, setProdutos] = useState([]);
   const [pedidos, setPedidos] = useState([]);
 
+  const [whatsapp, setWhatsapp] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [mensagem, setMensagem] = useState("");
 
   // =======================
-  // CARREGAR DADOS
+  // INIT
   // =======================
   useEffect(() => {
-    carregarProdutos();
-    carregarPedidos();
+    carregarTudo();
+
+    const intervalo = setInterval(() => {
+      carregarPedidos();
+    }, 5000);
+
+    return () => clearInterval(intervalo);
   }, []);
 
+  function carregarTudo() {
+    carregarProdutos();
+    carregarPedidos();
+    carregarConfig();
+  }
+
+  // =======================
+  // LOADERS
+  // =======================
   function carregarProdutos() {
-    axios
-      .get("https://sacolao-api.onrender.com/produtos")
-      .then((res) => setProdutos(res.data))
-      .catch((err) => console.log(err));
+    axios.get(`${API}/produtos`)
+      .then(res => setProdutos(res.data))
+      .catch(() => setMensagem("❌ Erro ao carregar produtos"));
   }
 
   function carregarPedidos() {
-    axios
-      .get("https://sacolao-api.onrender.com/pedidos")
-      .then((res) => setPedidos(res.data))
-      .catch((err) => console.log(err));
+    axios.get(`${API}/pedidos`)
+      .then(res => setPedidos(res.data))
+      .catch(() => setMensagem("❌ Erro ao carregar pedidos"));
+  }
+
+  function carregarConfig() {
+    axios.get(`${API}/config`)
+      .then(res => {
+        if (res.data?.whatsapp) {
+          setWhatsapp(res.data.whatsapp);
+        }
+      })
+      .catch(() => setMensagem("❌ Erro ao carregar config"));
   }
 
   // =======================
-  // CRIAR PRODUTO
+  // WHATSAPP
   // =======================
-  function criarProduto(e) {
-    if (e) e.preventDefault();
+  function salvarWhatsapp() {
+    if (!whatsapp) {
+      setMensagem("⚠️ Informe um número válido");
+      return;
+    }
 
+    axios.put(`${API}/config`, { whatsapp })
+      .then(() => setMensagem("✅ WhatsApp atualizado com sucesso"))
+      .catch(() => setMensagem("❌ Erro ao salvar WhatsApp"));
+  }
+
+  // =======================
+  // PRODUTO
+  // =======================
+  function criarProduto() {
     if (!nome || !preco || !imagem) {
       setMensagem("⚠️ Preencha todos os campos!");
       return;
@@ -53,14 +91,11 @@ function Admin({ logout }) {
     formData.append("imagem", imagem);
 
     setLoading(true);
-    setMensagem("");
 
-    axios
-      .post("https://sacolao-api.onrender.com/produtos", formData)
+    axios.post(`${API}/produtos`, formData)
       .then(() => {
         setMensagem("✅ Produto cadastrado com sucesso!");
 
-        // LIMPAR CAMPOS
         setNome("");
         setPreco("");
         setImagem(null);
@@ -71,28 +106,36 @@ function Admin({ logout }) {
 
         carregarProdutos();
       })
-      .catch(() => {
-        setMensagem("❌ Erro ao cadastrar produto");
+      .catch(() => setMensagem("❌ Erro ao cadastrar produto"))
+      .finally(() => setLoading(false));
+  }
+
+  function deletarProduto(id) {
+    if (!window.confirm("Deseja excluir este produto?")) return;
+
+    axios.delete(`${API}/produtos/${id}`)
+      .then(() => {
+        setMensagem("🗑 Produto removido");
+        carregarProdutos();
       })
-      .finally(() => {
-        setLoading(false);
-      });
+      .catch(() => setMensagem("❌ Erro ao deletar produto"));
   }
 
   // =======================
-  // DELETAR PRODUTO
+  // PEDIDOS
   // =======================
-  function deletarProduto(id) {
-    if (!window.confirm("Deseja realmente excluir?")) return;
+  function atualizarStatus(id, statusAtual) {
+    const novoStatus =
+      statusAtual === "pendente" ? "entregue" : "pendente";
 
-    axios
-      .delete(`https://sacolao-api.onrender.com/produtos/${id}`)
-      .then(() => {
-        carregarProdutos();
-      })
-      .catch(() => {
-        setMensagem("❌ Erro ao deletar produto");
-      });
+    axios.put(`${API}/pedidos/${id}`, {
+      status: novoStatus
+    })
+    .then(() => {
+      setMensagem("📦 Status atualizado");
+      carregarPedidos();
+    })
+    .catch(() => setMensagem("❌ Erro ao atualizar status"));
   }
 
   // =======================
@@ -112,10 +155,25 @@ function Admin({ logout }) {
 
       {/* MENSAGEM */}
       {mensagem && (
-        <p style={{ margin: "10px 0", fontWeight: "bold" }}>
+        <p style={{ fontWeight: "bold", margin: "10px 0" }}>
           {mensagem}
         </p>
       )}
+
+      {/* WHATSAPP */}
+      <div className="card-admin">
+        <h2>📱 WhatsApp de Pedidos</h2>
+
+        <input
+          value={whatsapp}
+          onChange={(e) => setWhatsapp(e.target.value)}
+          placeholder="Ex: 5591999999999"
+        />
+
+        <button onClick={salvarWhatsapp}>
+          Salvar Número
+        </button>
+      </div>
 
       {/* CADASTRO */}
       <div className="card-admin">
@@ -146,20 +204,18 @@ function Admin({ logout }) {
           }}
         />
 
-        {/* PREVIEW */}
         {preview && (
           <img
             src={preview}
             alt="preview"
             style={{
-              width: "120px",
+              width: "100px",
               marginTop: "10px",
               borderRadius: "8px"
             }}
           />
         )}
 
-        {/* BOTÃO */}
         <button onClick={criarProduto} disabled={loading}>
           {loading ? "Enviando..." : "Criar Produto"}
         </button>
@@ -170,14 +226,14 @@ function Admin({ logout }) {
         <h2>📦 Produtos</h2>
 
         {produtos.map((p) => (
-          <div key={p.id} className="item-admin" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div key={p.id} className="item-admin">
 
             <img
               src={p.imagem}
-              alt={p.nome}
+              alt=""
               style={{
-                width: "60px",
-                height: "60px",
+                width: "50px",
+                height: "50px",
                 objectFit: "cover",
                 borderRadius: "6px"
               }}
@@ -186,10 +242,7 @@ function Admin({ logout }) {
             <span>{p.nome}</span>
             <span>R$ {p.preco}</span>
 
-            <button
-              onClick={() => deletarProduto(p.id)}
-              style={{ marginLeft: "auto" }}
-            >
+            <button onClick={() => deletarProduto(p.id)}>
               ❌
             </button>
 
@@ -202,14 +255,29 @@ function Admin({ logout }) {
         <h2>🛒 Pedidos</h2>
 
         {pedidos.map((p) => (
-          <div key={p.id} className="item-admin">
+          <div
+            key={p.id}
+            className="item-admin"
+            style={{
+              borderLeft: `6px solid ${
+                p.status === "pendente" ? "orange" : "green"
+              }`
+            }}
+          >
 
             <div>
               <strong>{p.nome}</strong>
               <p>{p.endereco}</p>
+              <small>Status: {p.status}</small>
             </div>
 
-            <span>R$ {p.total}</span>
+            <div>
+              <span>R$ {p.total}</span>
+
+              <button onClick={() => atualizarStatus(p.id, p.status)}>
+                {p.status === "pendente" ? "✔ Entregar" : "↩ Reabrir"}
+              </button>
+            </div>
 
           </div>
         ))}

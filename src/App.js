@@ -7,6 +7,9 @@ import Login from "./Login";
 import Admin from "./Admin";
 import Cliente from "./Cliente";
 
+// 🔥 URL BASE (facilita manutenção depois)
+const API = "https://sacolao-api.onrender.com";
+
 function App() {
   const [logado, setLogado] = useState(false);
   const [usuario, setUsuario] = useState(null);
@@ -18,6 +21,9 @@ function App() {
   const [nome, setNome] = useState(() => localStorage.getItem("nome") || "");
   const [endereco, setEndereco] = useState(() => localStorage.getItem("endereco") || "");
 
+  // 🔥 WHATSAPP DINÂMICO
+  const [whatsapp, setWhatsapp] = useState("5591999999999");
+
   const total = carrinho.reduce(
     (soma, p) => soma + p.preco * p.quantidade,
     0
@@ -27,21 +33,18 @@ function App() {
   // LOGIN
   // =======================
   function handleLogin(email, senha) {
-    axios.post("https://sacolao-api.onrender.com/login", {
-      email,
-      senha
-    })
-    .then((res) => {
-      setUsuario(res.data);
-      setLogado(true);
-    })
-    .catch(() => {
-      alert("Login inválido");
-    });
+    axios.post(`${API}/login`, { email, senha })
+      .then((res) => {
+        setUsuario(res.data);
+        setLogado(true);
+      })
+      .catch(() => {
+        alert("Login inválido");
+      });
   }
 
   // =======================
-  // LOGOUT (ADMIN E CLIENTE)
+  // LOGOUT
   // =======================
   function logout() {
     setLogado(false);
@@ -54,10 +57,24 @@ function App() {
   // PRODUTOS
   // =======================
   useEffect(() => {
-    axios
-      .get("https://sacolao-api.onrender.com/produtos")
+    axios.get(`${API}/produtos`)
       .then((res) => setProdutos(res.data))
-      .catch((err) => console.log(err));
+      .catch(() => console.log("Erro ao carregar produtos"));
+  }, []);
+
+  // =======================
+  // 🔥 BUSCAR WHATSAPP
+  // =======================
+  useEffect(() => {
+    axios.get(`${API}/config`)
+      .then((res) => {
+        if (res.data?.whatsapp) {
+          setWhatsapp(res.data.whatsapp);
+        }
+      })
+      .catch(() => {
+        console.log("Erro ao carregar WhatsApp");
+      });
   }, []);
 
   // =======================
@@ -117,6 +134,11 @@ function App() {
       return;
     }
 
+    if (carrinho.length === 0) {
+      alert("Carrinho vazio!");
+      return;
+    }
+
     let mensagem = "🛒 Pedido - Sacolão do Edu\n\n";
     mensagem += `👤 Nome: ${nome}\n`;
     mensagem += `📍 Endereço: ${endereco}\n\n`;
@@ -127,12 +149,12 @@ function App() {
 
     mensagem += `\n💰 Total: R$ ${total.toFixed(2)}`;
 
-    const url = `https://wa.me/5591999999999?text=${encodeURIComponent(
-      mensagem
-    )}`;
+    // 🔥 WHATSAPP DINÂMICO
+    const url = `https://wa.me/${whatsapp}?text=${encodeURIComponent(mensagem)}`;
 
     window.open(url, "_blank");
 
+    // 🔥 LIMPAR
     setCarrinho([]);
     setNome("");
     setEndereco("");
