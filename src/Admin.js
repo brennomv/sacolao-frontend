@@ -23,10 +23,12 @@ function Admin({ logout }) {
   const [mensagem, setMensagem] = useState("");
 
   // =======================
-  // INIT
+  // INIT (CORRIGIDO)
   // =======================
   useEffect(() => {
-    carregarTudo();
+    carregarProdutos();
+    carregarPedidos();
+    carregarConfig();
 
     const intervalo = setInterval(() => {
       carregarPedidos();
@@ -34,12 +36,6 @@ function Admin({ logout }) {
 
     return () => clearInterval(intervalo);
   }, []);
-
-  function carregarTudo() {
-    carregarProdutos();
-    carregarPedidos();
-    carregarConfig();
-  }
 
   // =======================
   // LOADERS
@@ -79,16 +75,11 @@ function Admin({ logout }) {
     setMensagem("");
 
     axios.put(`${API}/config`, { whatsapp })
-      .then((res) => {
+      .then(() => {
         setMensagem("✅ WhatsApp atualizado com sucesso");
 
-        // 🔥 sincroniza com backend
-        setWhatsapp(res.data.whatsapp || "");
-
-        // 🔥 limpa depois de 1s (UX melhor)
-        setTimeout(() => {
-          setWhatsapp("");
-        }, 1000);
+        // 🔥 LIMPA CAMPO
+        setWhatsapp("");
       })
       .catch(() => setMensagem("❌ Erro ao salvar WhatsApp"))
       .finally(() => setSalvandoWhatsapp(false));
