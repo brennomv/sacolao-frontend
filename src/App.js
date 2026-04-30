@@ -7,12 +7,17 @@ import Login from "./Login";
 import Admin from "./Admin";
 import Cliente from "./Cliente";
 
-// 🔥 URL BASE (facilita manutenção depois)
+import { supabase } from "./supabase";
+
+// 🔥 API
 const API = "https://sacolao-api.onrender.com";
 
 function App() {
   const [logado, setLogado] = useState(false);
   const [usuario, setUsuario] = useState(null);
+
+  // 🔥 usuário cliente (supabase)
+  const [clienteLogado, setClienteLogado] = useState(null);
 
   const [produtos, setProdutos] = useState([]);
   const [carrinho, setCarrinho] = useState([]);
@@ -21,7 +26,6 @@ function App() {
   const [nome, setNome] = useState(() => localStorage.getItem("nome") || "");
   const [endereco, setEndereco] = useState(() => localStorage.getItem("endereco") || "");
 
-  // 🔥 WHATSAPP DINÂMICO
   const [whatsapp, setWhatsapp] = useState("5591999999999");
 
   const total = carrinho.reduce(
@@ -30,7 +34,39 @@ function App() {
   );
 
   // =======================
-  // LOGIN
+  // 🔐 VERIFICAR SESSÃO SUPABASE
+  // =======================
+  useEffect(() => {
+    async function checkUser() {
+      const { data } = await supabase.auth.getSession();
+
+      if (data?.session?.user) {
+        setClienteLogado(data.session.user);
+        setLogado(true);
+      }
+    }
+
+    checkUser();
+
+    // 🔥 listener (login/logout em tempo real)
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (session?.user) {
+          setClienteLogado(session.user);
+          setLogado(true);
+        } else {
+          setClienteLogado(null);
+        }
+      }
+    );
+
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  // =======================
+  // LOGIN ADMIN
   // =======================
   function handleLogin(email, senha) {
     axios.post(`${API}/login`, { email, senha })
@@ -46,11 +82,15 @@ function App() {
   // =======================
   // LOGOUT
   // =======================
-  function logout() {
+  async function logout() {
     setLogado(false);
     setUsuario(null);
     setCarrinho([]);
     setAbrirCarrinho(false);
+
+    // 🔥 logout supabase (cliente)
+    await supabase.auth.signOut();
+    setClienteLogado(null);
   }
 
   // =======================
@@ -63,7 +103,7 @@ function App() {
   }, []);
 
   // =======================
-  // 🔥 BUSCAR WHATSAPP
+  // WHATSAPP
   // =======================
   useEffect(() => {
     axios.get(`${API}/config`)
@@ -149,12 +189,9 @@ function App() {
 
     mensagem += `\n💰 Total: R$ ${total.toFixed(2)}`;
 
-    // 🔥 WHATSAPP DINÂMICO
     const url = `https://wa.me/${whatsapp}?text=${encodeURIComponent(mensagem)}`;
-
     window.open(url, "_blank");
 
-    // 🔥 LIMPAR
     setCarrinho([]);
     setNome("");
     setEndereco("");
@@ -176,7 +213,7 @@ function App() {
   }
 
   // =======================
-  // CLIENTE
+  // CLIENTE (SUPABASE)
   // =======================
   return (
     <Cliente

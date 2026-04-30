@@ -33,6 +33,9 @@ function Cliente({
     return () => window.removeEventListener("keydown", handleEsc);
   }, [setAbrirCarrinho]);
 
+  // TOTAL DE ITENS NO CARRINHO
+  const totalItens = carrinho.reduce((acc, p) => acc + p.quantidade, 0);
+
   return (
     <div className="container">
 
@@ -62,11 +65,11 @@ function Cliente({
           className="carrinho-icon"
           onClick={() => setAbrirCarrinho(true)}
         >
-          🛒 {carrinho.reduce((total, p) => total + p.quantidade, 0)}
+          🛒 {totalItens}
         </div>
       </div>
 
-      {/* DESTAQUE */}
+      {/* DESTAQUES */}
       <div className="produtos">
         {produtos.slice(0, 3).map((p) => (
           <div key={p.id} className="card">
@@ -97,7 +100,7 @@ function Cliente({
       </div>
 
       {/* LISTA */}
-      <h2>🛒 Produtos</h2>
+      <h2 style={{ marginTop: "25px" }}>🛒 Produtos</h2>
 
       <div className="produtos">
         {produtos.slice(3).map((p) => (
@@ -128,9 +131,12 @@ function Cliente({
         ))}
       </div>
 
-      {/* CARRINHO */}
+      {/* =======================
+         CARRINHO LATERAL
+      ======================= */}
       <div className={`cart-panel ${abrirCarrinho ? "open" : ""}`}>
 
+        {/* HEADER */}
         <div className="cart-header">
           <h2>🛒 Carrinho</h2>
 
@@ -142,48 +148,57 @@ function Cliente({
           </button>
         </div>
 
-        {carrinho.length === 0 ? (
-          <p style={{ textAlign: "center" }}>
-            Seu carrinho está vazio
-          </p>
-        ) : (
-          carrinho.map((p) => (
-            <div key={p.id} className="item-carrinho">
-              <span>{p.nome}</span>
+        {/* LISTA ITENS */}
+        <div style={{ flex: 1, overflowY: "auto" }}>
+          {carrinho.length === 0 ? (
+            <p style={{ textAlign: "center", marginTop: "20px" }}>
+              Seu carrinho está vazio
+            </p>
+          ) : (
+            carrinho.map((p) => (
+              <div key={p.id} className="item-carrinho">
+                <span>{p.nome}</span>
 
-              <div className="qty">
-                <button onClick={() => diminuir(p.id)}>➖</button>
-                <span>{p.quantidade}</span>
-                <button onClick={() => aumentar(p.id)}>➕</button>
+                <div className="qty">
+                  <button onClick={() => diminuir(p.id)}>➖</button>
+                  <span>{p.quantidade}</span>
+                  <button onClick={() => aumentar(p.id)}>➕</button>
+                </div>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
 
-        {/* DADOS CLIENTE */}
-        <input
-          className="input-cliente"
-          placeholder="Seu nome"
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-        />
+        {/* FOOTER FIXO */}
+        <div style={{ marginTop: "10px" }}>
 
-        <input
-          className="input-cliente"
-          placeholder="Endereço de entrega"
-          value={endereco}
-          onChange={(e) => setEndereco(e.target.value)}
-        />
+          <input
+            className="input-cliente"
+            placeholder="Seu nome"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+          />
 
-        <h3>Total: R$ {total.toFixed(2)}</h3>
+          <input
+            className="input-cliente"
+            placeholder="Endereço de entrega"
+            value={endereco}
+            onChange={(e) => setEndereco(e.target.value)}
+          />
 
-        <button
-          className="finalizar-btn"
-          onClick={finalizarPedido}
-          disabled={carrinho.length === 0}
-        >
-          Finalizar Pedido
-        </button>
+          <h3 style={{ marginTop: "10px" }}>
+            Total: R$ {total.toFixed(2)}
+          </h3>
+
+          <button
+            className="finalizar-btn"
+            onClick={finalizarPedido}
+            disabled={carrinho.length === 0}
+          >
+            Finalizar Pedido
+          </button>
+
+        </div>
 
       </div>
 

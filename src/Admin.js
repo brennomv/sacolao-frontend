@@ -5,9 +5,6 @@ import "./App.css";
 const API = "https://sacolao-api.onrender.com";
 
 function Admin({ logout }) {
-  // =======================
-  // STATES
-  // =======================
   const [nome, setNome] = useState("");
   const [preco, setPreco] = useState("");
   const [imagem, setImagem] = useState(null);
@@ -17,283 +14,272 @@ function Admin({ logout }) {
   const [pedidos, setPedidos] = useState([]);
 
   const [whatsapp, setWhatsapp] = useState("");
-  const [salvandoWhatsapp, setSalvandoWhatsapp] = useState(false);
+
+  // 🔥 SEPARAÇÃO CORRETA
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
   const [loading, setLoading] = useState(false);
-  const [mensagem, setMensagem] = useState("");
 
   // =======================
-  // INIT (CORRIGIDO)
+  // LIMPA MENSAGENS AUTOMÁTICO
   // =======================
   useEffect(() => {
-    carregarProdutos();
-    carregarPedidos();
-    carregarConfig();
+    if (erro || sucesso) {
+      const timer = setTimeout(() => {
+        setErro("");
+        setSucesso("");
+      }, 3000);
 
-    const intervalo = setInterval(() => {
-      carregarPedidos();
-    }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [erro, sucesso]);
 
-    return () => clearInterval(intervalo);
+  // =======================
+  // INIT
+  // =======================
+  useEffect(() => {
+    carregarTudo();
   }, []);
 
-  // =======================
-  // LOADERS
-  // =======================
-  function carregarProdutos() {
-  axios.get(`${API}/produtos`)
-    .then(res => {
-      setProdutos(res.data);
-      setMensagem(""); // 🔥 limpa erro antigo
-    })
-    .catch(() => {
-      setMensagem("❌ Erro ao carregar produtos");
-    });
-}
+  async function carregarTudo() {
+    try {
+      const [resProdutos, resPedidos, resConfig] = await Promise.all([
+        axios.get(`${API}/produtos`),
+        axios.get(`${API}/pedidos`),
+        axios.get(`${API}/config`)
+      ]);
 
-  function carregarPedidos() {
-  axios.get(`${API}/pedidos`)
-    .then(res => {
-      setPedidos(res.data);
-    })
-    .catch(() => {
-      console.log("Erro ao carregar pedidos");
-    });
-}
+      setProdutos(resProdutos.data || []);
+      setPedidos(resPedidos.data || []);
 
-  function carregarConfig() {
-  axios.get(`${API}/config`)
-    .then(res => {
-      if (res.data?.whatsapp) {
-        setWhatsapp(res.data.whatsapp);
+      if (resConfig.data?.whatsapp) {
+        setWhatsapp(resConfig.data.whatsapp);
       }
-      setMensagem(""); // 🔥 limpa erro antigo
-    })
-    .catch(() => setMensagem("❌ Erro ao carregar config"));
-}
+
+      setErro(""); // limpa erro se deu certo
+
+    } catch (err) {
+      console.log("ERRO GERAL:", err);
+      setErro("❌ Erro ao carregar dados");
+    }
+  }
 
   // =======================
   // WHATSAPP
   // =======================
-  function salvarWhatsapp() {
+  async function salvarWhatsapp() {
     if (!whatsapp) {
-      setMensagem("⚠️ Informe um número válido");
-      return;
+      return setErro("⚠️ Informe um número válido");
     }
 
-    setSalvandoWhatsapp(true);
-    setMensagem("");
+    try {
+      await axios.put(`${API}/config`, { whatsapp });
 
-    axios.put(`${API}/config`, { whatsapp })
-      .then(() => {
-        setMensagem("✅ WhatsApp atualizado com sucesso");
+      setSucesso("✅ WhatsApp atualizado!");
+      setWhatsapp("");
 
-        // 🔥 LIMPA CAMPO
-        setWhatsapp("");
-      })
-      .catch(() => setMensagem("❌ Erro ao salvar WhatsApp"))
-      .finally(() => setSalvandoWhatsapp(false));
+    } catch (err) {
+      console.log(err);
+      setErro("❌ Erro ao salvar WhatsApp");
+    }
   }
 
   // =======================
-  // PRODUTOS
+  // CRIAR PRODUTO
   // =======================
-  function criarProduto() {
+  async function criarProduto() {
     if (!nome || !preco || !imagem) {
-      setMensagem("⚠️ Preencha todos os campos!");
-      return;
+      return setErro("⚠️ Preencha todos os campos!");
     }
 
-    const formData = new FormData();
-    formData.append("nome", nome);
-    formData.append("preco", preco);
-    formData.append("imagem", imagem);
+    try {
+      setLoading(true);
 
-    setLoading(true);
-    setMensagem("");
+      const formData = new FormData();
+      formData.append("nome", nome);
+      formData.append("preco", preco);
+      formData.append("imagem", imagem);
 
-    axios.post(`${API}/produtos`, formData)
-      .then(() => {
-        setMensagem("✅ Produto cadastrado!");
+      await axios.post(`${API}/produtos`, formData);
 
-        setNome("");
-        setPreco("");
-        setImagem(null);
-        setPreview(null);
+      setSucesso("✅ Produto criado!");
 
-        const input = document.getElementById("inputImagem");
-        if (input) input.value = "";
+      setNome("");
+      setPreco("");
+      setImagem(null);
+      setPreview(null);
 
-        carregarProdutos();
-      })
-      .catch(() => setMensagem("❌ Erro ao cadastrar produto"))
-      .finally(() => setLoading(false));
+      carregarTudo();
+
+    } catch (err) {
+      console.log("ERRO PRODUTO:", err);
+      setErro("❌ Erro ao criar produto");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function deletarProduto(id) {
+  // =======================
+  // DELETAR
+  // =======================
+  async function deletarProduto(id) {
     if (!window.confirm("Excluir produto?")) return;
 
-    axios.delete(`${API}/produtos/${id}`)
-      .then(() => {
-        setMensagem("🗑 Produto removido");
-        carregarProdutos();
-      })
-      .catch(() => setMensagem("❌ Erro ao deletar"));
+    try {
+      await axios.delete(`${API}/produtos/${id}`);
+
+      setSucesso("🗑 Produto removido");
+      carregarTudo();
+
+    } catch (err) {
+      console.log(err);
+      setErro("❌ Erro ao deletar");
+    }
   }
 
   // =======================
-  // PEDIDOS
+  // STATUS PEDIDO
   // =======================
-  function atualizarStatus(id, statusAtual) {
-    const novoStatus =
-      statusAtual === "pendente" ? "entregue" : "pendente";
+  async function atualizarStatus(id, status) {
+    const novo = status === "pendente" ? "entregue" : "pendente";
 
-    axios.put(`${API}/pedidos/${id}`, { status: novoStatus })
-      .then(() => {
-        setMensagem("📦 Status atualizado");
-        carregarPedidos();
-      })
-      .catch(() => setMensagem("❌ Erro ao atualizar status"));
+    try {
+      await axios.put(`${API}/pedidos/${id}`, { status: novo });
+      setSucesso("📦 Status atualizado");
+      carregarTudo();
+
+    } catch (err) {
+      console.log(err);
+      setErro("❌ Erro ao atualizar status");
+    }
   }
 
   // =======================
   // RENDER
   // =======================
   return (
-    <div className="admin-container">
+    <div className="dashboard">
 
-      {/* TOPO */}
-      <div className="admin-topo">
-        <h1>🧑‍💼 Painel Admin</h1>
-
+      {/* HEADER */}
+      <header className="header">
+        <h1>📊 Painel Administrativo</h1>
         <button className="btn-sair" onClick={logout}>
-          ⬅ Sair
+          Sair
         </button>
-      </div>
+      </header>
 
-      {/* MENSAGEM */}
-      {mensagem && mensagem.includes("❌") && (
-  <p style={{ color: "red" }}>{mensagem}</p>
-)}
+      {/* 🔥 MENSAGENS CORRIGIDAS */}
+      {erro && <p className="msg erro">{erro}</p>}
+      {sucesso && <p className="msg sucesso">{sucesso}</p>}
 
-      {/* WHATSAPP */}
-      <div className="card-admin">
-        <h2>📱 WhatsApp de Pedidos</h2>
+      <div className="grid">
 
-        <input
-          value={whatsapp}
-          onChange={(e) => setWhatsapp(e.target.value)}
-          placeholder="Ex: 5591999999999"
-        />
+        {/* WHATSAPP */}
+        <div className="card full">
+          <h2>📱 WhatsApp</h2>
 
-        <button onClick={salvarWhatsapp} disabled={salvandoWhatsapp}>
-          {salvandoWhatsapp ? "Salvando..." : "Salvar Número"}
-        </button>
-      </div>
+          <input
+            value={whatsapp}
+            onChange={(e) => setWhatsapp(e.target.value)}
+            placeholder="5591999999999"
+          />
 
-      {/* CADASTRO */}
-      <div className="card-admin">
-        <h2>📦 Cadastrar Produto</h2>
+          <button onClick={salvarWhatsapp}>
+            Salvar
+          </button>
+        </div>
 
-        <input
-          placeholder="Nome"
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-        />
+        {/* NOVO PRODUTO */}
+        <div className="card full">
+          <h2>📦 Novo Produto</h2>
 
-        <input
-          placeholder="Preço"
-          value={preco}
-          onChange={(e) => setPreco(e.target.value)}
-        />
+          <input
+            placeholder="Nome"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+          />
 
-        <input
-          id="inputImagem"
-          type="file"
-          onChange={(e) => {
-            const file = e.target.files[0];
-            setImagem(file);
+          <input
+            placeholder="Preço"
+            value={preco}
+            onChange={(e) => setPreco(e.target.value)}
+          />
 
-            if (file) {
-              setPreview(URL.createObjectURL(file));
-            }
-          }}
-        />
+          <input
+            type="file"
+            onChange={(e) => {
+              const file = e.target.files[0];
+              setImagem(file);
 
-        {preview && (
-          <img
-            src={preview}
-            alt="preview"
-            style={{
-              width: "100px",
-              marginTop: "10px",
-              borderRadius: "8px"
+              if (file) {
+                setPreview(URL.createObjectURL(file));
+              }
             }}
           />
-        )}
 
-        <button onClick={criarProduto} disabled={loading}>
-          {loading ? "Enviando..." : "Criar Produto"}
-        </button>
+          {preview && (
+            <img src={preview} alt="preview" className="preview" />
+          )}
+
+          <button onClick={criarProduto} disabled={loading}>
+            {loading ? "Enviando..." : "Criar Produto"}
+          </button>
+        </div>
+
+        {/* PRODUTOS */}
+        <div className="card full">
+          <h2>📦 Produtos</h2>
+
+          {produtos.length === 0 ? (
+            <p>Nenhum produto cadastrado</p>
+          ) : (
+            produtos.map((p) => (
+              <div key={p.id} className="item">
+                <img
+                  src={p.imagem || "https://via.placeholder.com/50"}
+                  alt={p.nome}
+                />
+
+                <span>{p.nome}</span>
+                <span>R$ {p.preco}</span>
+
+                <button onClick={() => deletarProduto(p.id)}>
+                  ❌
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* PEDIDOS */}
+        <div className="card full">
+          <h2>🛒 Pedidos</h2>
+
+          {pedidos.length === 0 ? (
+            <p>Nenhum pedido ainda</p>
+          ) : (
+            pedidos.map((p) => (
+              <div key={p.id} className="item">
+                <div>
+                  <strong>{p.nome}</strong>
+                  <p>{p.endereco}</p>
+                  <small>Status: {p.status}</small>
+                </div>
+
+                <div>
+                  <span>R$ {p.total}</span>
+
+                  <button onClick={() => atualizarStatus(p.id, p.status)}>
+                    {p.status === "pendente" ? "✔ Entregar" : "↩ Reabrir"}
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
       </div>
-
-      {/* PRODUTOS */}
-      <div className="card-admin">
-        <h2>📦 Produtos</h2>
-
-        {produtos.map((p) => (
-          <div key={p.id} className="item-admin">
-            <img
-              src={p.imagem}
-              alt=""
-              style={{
-                width: "50px",
-                height: "50px",
-                objectFit: "cover",
-                borderRadius: "6px"
-              }}
-            />
-            <span>{p.nome}</span>
-            <span>R$ {p.preco}</span>
-
-            <button onClick={() => deletarProduto(p.id)}>
-              ❌
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {/* PEDIDOS */}
-      <div className="card-admin">
-        <h2>🛒 Pedidos</h2>
-
-        {pedidos.map((p) => (
-          <div
-            key={p.id}
-            className="item-admin"
-            style={{
-              borderLeft: `6px solid ${
-                p.status === "pendente" ? "orange" : "green"
-              }`
-            }}
-          >
-            <div>
-              <strong>{p.nome}</strong>
-              <p>{p.endereco}</p>
-              <small>Status: {p.status}</small>
-            </div>
-
-            <div>
-              <span>R$ {p.total}</span>
-
-              <button onClick={() => atualizarStatus(p.id, p.status)}>
-                {p.status === "pendente" ? "✔ Entregar" : "↩ Reabrir"}
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
     </div>
   );
 }
