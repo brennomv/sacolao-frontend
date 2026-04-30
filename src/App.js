@@ -19,6 +19,9 @@ function App() {
   // 🔥 cliente autenticado (Supabase)
   const [clienteLogado, setClienteLogado] = useState(null);
 
+  // 🔥 CONTROLE DE CARREGAMENTO
+  const [carregando, setCarregando] = useState(true);
+
   const [produtos, setProdutos] = useState([]);
   const [carrinho, setCarrinho] = useState([]);
   const [abrirCarrinho, setAbrirCarrinho] = useState(false);
@@ -44,6 +47,8 @@ function App() {
         setClienteLogado(data.session.user);
         setLogado(true);
       }
+
+      setCarregando(false); // 🔥 ESSENCIAL
     }
 
     checkUser();
@@ -55,6 +60,7 @@ function App() {
           setLogado(true);
         } else {
           setClienteLogado(null);
+          setLogado(false);
         }
       }
     );
@@ -197,20 +203,28 @@ function App() {
   }
 
   // =======================
-  // 🔥 RENDERIZAÇÃO
+  // 🔥 LOADING (CORREÇÃO)
+  // =======================
+  if (carregando) {
+    return (
+      <p style={{ textAlign: "center", marginTop: "50px" }}>
+        Carregando...
+      </p>
+    );
+  }
+
+  // =======================
+  // RENDER
   // =======================
 
-  // 👉 NÃO LOGADO
   if (!logado) {
     return <Login onLogin={handleLogin} />;
   }
 
-  // 👉 ADMIN
   if (usuario?.tipo === "admin") {
     return <Admin logout={logout} />;
   }
 
-  // 👉 CLIENTE (AGORA USANDO clienteLogado)
   if (clienteLogado) {
     return (
       <Cliente
@@ -233,7 +247,6 @@ function App() {
     );
   }
 
-  // fallback
   return <Login onLogin={handleLogin} />;
 }
 
