@@ -16,7 +16,7 @@ function App() {
   const [logado, setLogado] = useState(false);
   const [usuario, setUsuario] = useState(null);
 
-  // 🔥 usuário cliente (supabase)
+  // 🔥 cliente autenticado (Supabase)
   const [clienteLogado, setClienteLogado] = useState(null);
 
   const [produtos, setProdutos] = useState([]);
@@ -34,7 +34,7 @@ function App() {
   );
 
   // =======================
-  // 🔐 VERIFICAR SESSÃO SUPABASE
+  // 🔐 SESSÃO SUPABASE
   // =======================
   useEffect(() => {
     async function checkUser() {
@@ -48,7 +48,6 @@ function App() {
 
     checkUser();
 
-    // 🔥 listener (login/logout em tempo real)
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (session?.user) {
@@ -88,7 +87,6 @@ function App() {
     setCarrinho([]);
     setAbrirCarrinho(false);
 
-    // 🔥 logout supabase (cliente)
     await supabase.auth.signOut();
     setClienteLogado(null);
   }
@@ -199,41 +197,44 @@ function App() {
   }
 
   // =======================
-  // LOGIN SCREEN
+  // 🔥 RENDERIZAÇÃO
   // =======================
+
+  // 👉 NÃO LOGADO
   if (!logado) {
     return <Login onLogin={handleLogin} />;
   }
 
-  // =======================
-  // ADMIN
-  // =======================
+  // 👉 ADMIN
   if (usuario?.tipo === "admin") {
     return <Admin logout={logout} />;
   }
 
-  // =======================
-  // CLIENTE (SUPABASE)
-  // =======================
-  return (
-    <Cliente
-      produtos={produtos}
-      carrinho={carrinho}
-      adicionar={adicionar}
-      aumentar={aumentar}
-      diminuir={diminuir}
-      nome={nome}
-      setNome={setNome}
-      endereco={endereco}
-      setEndereco={setEndereco}
-      total={total}
-      finalizarPedido={finalizarPedido}
-      abrirCarrinho={abrirCarrinho}
-      setAbrirCarrinho={setAbrirCarrinho}
-      logo={logo}
-      logout={logout}
-    />
-  );
+  // 👉 CLIENTE (AGORA USANDO clienteLogado)
+  if (clienteLogado) {
+    return (
+      <Cliente
+        produtos={produtos}
+        carrinho={carrinho}
+        adicionar={adicionar}
+        aumentar={aumentar}
+        diminuir={diminuir}
+        nome={nome}
+        setNome={setNome}
+        endereco={endereco}
+        setEndereco={setEndereco}
+        total={total}
+        finalizarPedido={finalizarPedido}
+        abrirCarrinho={abrirCarrinho}
+        setAbrirCarrinho={setAbrirCarrinho}
+        logo={logo}
+        logout={logout}
+      />
+    );
+  }
+
+  // fallback
+  return <Login onLogin={handleLogin} />;
 }
 
 export default App;
