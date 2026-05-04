@@ -13,14 +13,17 @@ import { supabase } from "./supabase";
 const API = "https://sacolao-api.onrender.com";
 
 function App() {
-  const [logado, setLogado] = useState(false);
-  const [usuario, setUsuario] = useState(null);
 
-  // 🔥 cliente autenticado (Supabase)
+  // 🔥 ADMIN (persistente)
+  const [usuario, setUsuario] = useState(() => {
+    const saved = localStorage.getItem("admin");
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  // 🔥 CLIENTE (supabase)
   const [clienteLogado, setClienteLogado] = useState(null);
 
-  // 🔥 CONTROLE DE CARREGAMENTO
-  const [carregando, setCarregando] = useState(true);
+  const [loadingAuth, setLoadingAuth] = useState(true);
 
   const [produtos, setProdutos] = useState([]);
   const [carrinho, setCarrinho] = useState([]);
@@ -30,6 +33,9 @@ function App() {
   const [endereco, setEndereco] = useState(() => localStorage.getItem("endereco") || "");
 
   const [whatsapp, setWhatsapp] = useState("5591999999999");
+
+  // 🔥 NOVO: taxa entrega
+  const [taxaEntrega, setTaxaEntrega] = useState(3);
 
   const total = carrinho.reduce(
     (soma, p) => soma + p.preco * p.quantidade,
@@ -45,10 +51,9 @@ function App() {
 
       if (data?.session?.user) {
         setClienteLogado(data.session.user);
-        setLogado(true);
       }
 
-      setCarregando(false); // 🔥 ESSENCIAL
+      setLoadingAuth(false);
     }
 
     checkUser();
@@ -57,10 +62,8 @@ function App() {
       (event, session) => {
         if (session?.user) {
           setClienteLogado(session.user);
-          setLogado(true);
         } else {
           setClienteLogado(null);
-          setLogado(false);
         }
       }
     );
@@ -77,7 +80,7 @@ function App() {
     axios.post(`${API}/login`, { email, senha })
       .then((res) => {
         setUsuario(res.data);
-        setLogado(true);
+        localStorage.setItem("admin", JSON.stringify(res.data));
       })
       .catch(() => {
         alert("Login inválido");
@@ -88,10 +91,11 @@ function App() {
   // LOGOUT
   // =======================
   async function logout() {
-    setLogado(false);
     setUsuario(null);
     setCarrinho([]);
     setAbrirCarrinho(false);
+
+    localStorage.removeItem("admin");
 
     await supabase.auth.signOut();
     setClienteLogado(null);
@@ -107,7 +111,7 @@ function App() {
   }, []);
 
   // =======================
-  // WHATSAPP
+  // CONFIG (WHATS + TAXA)
   // =======================
   useEffect(() => {
     axios.get(`${API}/config`)
@@ -115,9 +119,13 @@ function App() {
         if (res.data?.whatsapp) {
           setWhatsapp(res.data.whatsapp);
         }
+
+        if (res.data?.taxa_entrega !== undefined) {
+          setTaxaEntrega(Number(res.data.taxa_entrega));
+        }
       })
       .catch(() => {
-        console.log("Erro ao carregar WhatsApp");
+        console.log("Erro ao carregar config");
       });
   }, []);
 
@@ -170,9 +178,10 @@ function App() {
   }
 
   // =======================
-  // FINALIZAR PEDIDO
+  // 🔥 FINALIZAR PEDIDO (COM FRETE)
   // =======================
   function finalizarPedido() {
+
     if (!nome || !endereco) {
       alert("Preencha nome e endereço!");
       return;
@@ -183,6 +192,9 @@ function App() {
       return;
     }
 
+    const frete = total >= 50 ? 0 : taxaEntrega;
+    const totalFinal = total + frete;
+
     let mensagem = "🛒 Pedido - Sacolão do Edu\n\n";
     mensagem += `👤 Nome: ${nome}\n`;
     mensagem += `📍 Endereço: ${endereco}\n\n`;
@@ -191,7 +203,8 @@ function App() {
       mensagem += `🍎 ${p.nome} x${p.quantidade} - R$ ${p.preco}\n`;
     });
 
-    mensagem += `\n💰 Total: R$ ${total.toFixed(2)}`;
+    mensagem += `\n🚚 Entrega: ${frete === 0 ? "Grátis" : "R$ " + frete}`;
+    mensagem += `\n💰 Total: R$ ${totalFinal.toFixed(2)}`;
 
     const url = `https://wa.me/${whatsapp}?text=${encodeURIComponent(mensagem)}`;
     window.open(url, "_blank");
@@ -203,28 +216,22 @@ function App() {
   }
 
   // =======================
-  // 🔥 LOADING (CORREÇÃO)
+  // ⏳ LOADING
   // =======================
-  if (carregando) {
-    return (
-      <p style={{ textAlign: "center", marginTop: "50px" }}>
-        Carregando...
-      </p>
-    );
+  if (loadingAuth) {
+    return <div style={{ padding: 20 }}>Carregando...</div>;
   }
 
   // =======================
-  // RENDER
+  // ADMIN
   // =======================
-
-  if (!logado) {
-    return <Login onLogin={handleLogin} />;
-  }
-
   if (usuario?.tipo === "admin") {
     return <Admin logout={logout} />;
   }
 
+  // =======================
+  // CLIENTE
+  // =======================
   if (clienteLogado) {
     return (
       <Cliente
@@ -247,6 +254,9 @@ function App() {
     );
   }
 
+  // =======================
+  // NÃO LOGADO
+  // =======================
   return <Login onLogin={handleLogin} />;
 }
 

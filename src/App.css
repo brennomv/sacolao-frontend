@@ -13,53 +13,24 @@ body {
 .login-container {
   height: 100vh;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #2e7d32, #66bb6a);
-  padding: 20px;
-}
-
-.login-logo {
-  width: 180px;
-  max-width: 70%;
-  margin-bottom: 20px;
 }
 
 .login-box {
-  width: 100%;
-  max-width: 320px;
   background: white;
   padding: 25px;
   border-radius: 12px;
+  width: 300px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.25);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-.login-input {
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-.login-button {
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  background: #2e7d32;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.login-button:hover {
-  background: #1b5e20;
+  gap: 10px;
 }
 
 /* =======================
-   DASHBOARD ADMIN
+   ADMIN
 ======================= */
 
 .dashboard {
@@ -73,10 +44,9 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
 }
 
-.header button {
+.btn-sair {
   background: #d32f2f;
   color: white;
   border: none;
@@ -85,59 +55,101 @@ body {
   cursor: pointer;
 }
 
-/* MENSAGEM */
+/* MENSAGENS */
 .msg {
-  color: red;
+  padding: 10px;
+  border-radius: 8px;
   font-weight: bold;
-  margin-bottom: 10px;
+}
+
+.msg.erro {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.msg.sucesso {
+  background: #e8f5e9;
+  color: #2e7d32;
 }
 
 /* GRID */
 .grid {
   display: grid;
-  grid-template-columns: 1fr;
   gap: 20px;
 }
 
-/* CARD */
+/* CARD ADMIN */
 .card {
   background: white;
   padding: 20px;
   border-radius: 14px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
 
+/* =======================
+   🔥 CONFIGURAÇÕES (DESTAQUE)
+======================= */
+.config-card {
+  border-left: 6px solid #2e7d32;
+  background: #f9fff9;
+}
+
+/* TÍTULO */
+.config-card h2 {
+  margin-bottom: 10px;
+}
+
+/* GRID CONFIG */
+.config-grid {
+  display: grid;
+  gap: 12px;
+}
+
+/* GRUPO INPUT */
+.input-group {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 4px;
 }
 
-/* 🔥 FAZ OCUPAR TUDO */
-.full {
-  width: 100%;
+/* LABEL */
+.input-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
 }
 
-/* INPUTS ADMIN */
-.card input {
+/* INPUT */
+.input-group input {
   padding: 10px;
   border-radius: 8px;
   border: 1px solid #ccc;
 }
 
-/* BOTÕES ADMIN */
-.card button {
+/* DICA */
+.hint {
+  font-size: 12px;
+  color: #777;
+}
+
+/* BOTÃO CONFIG */
+.btn-salvar-config {
+  margin-top: 10px;
   background: #2e7d32;
   color: white;
+  padding: 12px;
   border: none;
-  padding: 10px;
   border-radius: 8px;
   cursor: pointer;
 }
 
-.card button:hover {
+.btn-salvar-config:hover {
   background: #1b5e20;
 }
 
-/* LISTA */
+/* =======================
+   PRODUTOS / LISTAS
+======================= */
 .item {
   display: flex;
   justify-content: space-between;
@@ -153,13 +165,6 @@ body {
   border-radius: 8px;
 }
 
-/* PREVIEW */
-.preview {
-  width: 100px;
-  border-radius: 8px;
-  margin-top: 10px;
-}
-
 /* =======================
    CLIENTE
 ======================= */
@@ -170,6 +175,7 @@ body {
   margin: auto;
 }
 
+/* LOGO */
 .topo-central {
   display: flex;
   justify-content: center;
@@ -187,14 +193,13 @@ body {
   margin: 20px 0;
 }
 
-/* CARRINHO ICON */
+/* CARRINHO */
 .carrinho-icon {
   background: #2e7d32;
   color: white;
   padding: 10px 14px;
   border-radius: 50%;
   cursor: pointer;
-  font-weight: bold;
 }
 
 /* PRODUTOS */
@@ -204,8 +209,8 @@ body {
   gap: 15px;
 }
 
-/* CARD PRODUTO */
-.card {
+/* CARD CLIENTE */
+.produto-card {
   background: white;
   border-radius: 14px;
   overflow: hidden;
@@ -240,7 +245,7 @@ body {
 }
 
 /* =======================
-   CARRINHO LATERAL
+   CARRINHO
 ======================= */
 
 .backdrop {
@@ -250,62 +255,30 @@ body {
   width: 100%;
   height: 100%;
   background: rgba(0,0,0,0.4);
-  z-index: 999;
 }
 
 .cart-panel {
   position: fixed;
-  top: 0;
   right: -350px;
+  top: 0;
   width: 300px;
   height: 100vh;
   background: white;
-  z-index: 1000;
-
-  display: flex;
-  flex-direction: column;
+  transition: 0.3s;
   padding: 15px;
-
-  transition: right 0.3s ease;
 }
 
 .cart-panel.open {
   right: 0;
 }
 
-/* HEADER */
-.cart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* ITEM */
-.item-carrinho {
-  display: flex;
-  justify-content: space-between;
-  margin: 10px 0;
-}
-
-/* QTD */
-.qty {
-  display: flex;
-  gap: 5px;
-}
-
-.qty button {
-  border: none;
-  padding: 5px;
-  cursor: pointer;
-}
-
-/* INPUT CLIENTE */
-.input-cliente {
-  width: 100%;
+/* TOTAL */
+.total-box {
+  background: #f1f8e9;
   padding: 10px;
-  margin-top: 10px;
   border-radius: 8px;
-  border: 1px solid #ccc;
+  margin-top: 10px;
+  font-weight: bold;
 }
 
 /* FINALIZAR */
@@ -320,16 +293,237 @@ body {
   cursor: pointer;
 }
 
-/* BOTÃO SAIR */
-.btn-sair,
-.btn-sair-cliente {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: #d32f2f;
-  color: white;
-  border: none;
+/* =======================
+   ENTREGA - ADMIN UI
+======================= */
+
+.entrega-box {
+  background: #f9fafb;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 15px;
+  margin-top: 10px;
+}
+
+.entrega-box h3 {
+  margin-bottom: 10px;
+  color: #2e7d32;
+}
+
+.entrega-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+}
+
+.campo label {
+  font-size: 13px;
+  margin-bottom: 4px;
+  color: #555;
+}
+
+.campo input {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.resumo-entrega {
+  margin-top: 12px;
+  font-size: 14px;
+  background: #fff3cd;
   padding: 10px;
   border-radius: 8px;
+  border: 1px solid #ffeeba;
+}
+
+.gratis {
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+/* =======================
+   🔥 CONFIGURAÇÕES ADMIN MELHORADO
+======================= */
+
+.config-box {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.config-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.config-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.config-group input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* 🔥 BLOCO ENTREGA */
+.entrega-box {
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 12px;
+  background: #f9fafb;
+  border: 1px solid #eee;
+}
+
+.entrega-box h3 {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+/* 🔥 GRID BONITO (lado a lado) */
+.entrega-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* RESPONSIVO */
+@media (max-width: 600px) {
+  .entrega-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* TEXTO EXPLICATIVO */
+.entrega-info {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* BOTÃO MAIS BONITO */
+.btn-salvar {
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #2e7d32;
+  color: white;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-salvar:hover {
+  background: #1b5e20;
+}
+
+.btn-spacing {
+  margin-top: 20px;
+}
+
+/* =======================
+   🛒 CARRINHO MELHORADO
+======================= */
+
+.cart-panel {
+  box-shadow: -5px 0 20px rgba(0,0,0,0.1);
+}
+
+/* HEADER */
+.cart-header h2 {
+  font-size: 18px;
+}
+
+/* ITEM */
+.item-carrinho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.item-carrinho p {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}
+
+/* QTD */
+.qty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.qty button {
+  background: #eee;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.qty span {
+  min-width: 20px;
+  text-align: center;
+}
+
+/* RESUMO */
+.resumo {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background: #f9f9f9;
+}
+
+.linha {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.linha.total {
+  margin-top: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  border-top: 1px solid #ddd;
+  padding-top: 8px;
+}
+
+/* BOTÃO FINALIZAR */
+.finalizar-btn {
+  background: #ff9800;
+  font-weight: bold;
+  font-size: 15px;
+  transition: 0.2s;
+}
+
+.finalizar-btn:hover {
+  background: #f57c00;
+}
+
+.cart-header {
+  display: flex;
+  justify-content: space-between; /* empurra pro lado direito */
+  align-items: center;
+}
+
+.btn-fechar {
+  background: none;
+  border: none;
+  font-size: 18px;
   cursor: pointer;
 }

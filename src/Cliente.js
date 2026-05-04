@@ -1,5 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import "./App.css";
+
+const API = "https://sacolao-api.onrender.com";
 
 function Cliente({
   produtos,
@@ -19,8 +22,25 @@ function Cliente({
   logout
 }) {
 
+  const [taxaEntrega, setTaxaEntrega] = useState(3);
+  const [freteGratis, setFreteGratis] = useState(50);
+
   // =======================
-  // UX: FECHAR COM ESC
+  // 🔥 BUSCAR CONFIG
+  // =======================
+  useEffect(() => {
+    axios.get(`${API}/config`)
+      .then((res) => {
+        if (res.data) {
+          setTaxaEntrega(Number(res.data.taxaEntrega || 3));
+          setFreteGratis(Number(res.data.valorMinimoFreteGratis || 50));
+        }
+      })
+      .catch(() => console.log("Erro ao carregar config"));
+  }, []);
+
+  // =======================
+  // ESC FECHAR
   // =======================
   useEffect(() => {
     function handleEsc(e) {
@@ -33,8 +53,16 @@ function Cliente({
     return () => window.removeEventListener("keydown", handleEsc);
   }, [setAbrirCarrinho]);
 
-  // TOTAL DE ITENS NO CARRINHO
+  // =======================
+  // TOTAIS
+  // =======================
   const totalItens = carrinho.reduce((acc, p) => acc + p.quantidade, 0);
+
+  const frete = total >= freteGratis ? 0 : taxaEntrega;
+  const totalFinal = total + frete;
+
+  // 🔥 FALTA PARA FRETE GRÁTIS
+  const faltaFrete = freteGratis - total;
 
   return (
     <div className="container">
@@ -47,7 +75,7 @@ function Cliente({
         />
       )}
 
-      {/* BOTÃO SAIR */}
+      {/* SAIR */}
       <button className="btn-sair-cliente" onClick={logout}>
         ⬅ Sair
       </button>
@@ -132,7 +160,7 @@ function Cliente({
       </div>
 
       {/* =======================
-         CARRINHO LATERAL
+         🛒 CARRINHO
       ======================= */}
       <div className={`cart-panel ${abrirCarrinho ? "open" : ""}`}>
 
@@ -148,10 +176,10 @@ function Cliente({
           </button>
         </div>
 
-        {/* LISTA ITENS */}
-        <div style={{ flex: 1, overflowY: "auto" }}>
+        {/* LISTA */}
+        <div className="cart-items">
           {carrinho.length === 0 ? (
-            <p style={{ textAlign: "center", marginTop: "20px" }}>
+            <p className="empty-cart">
               Seu carrinho está vazio
             </p>
           ) : (
@@ -169,8 +197,8 @@ function Cliente({
           )}
         </div>
 
-        {/* FOOTER FIXO */}
-        <div style={{ marginTop: "10px" }}>
+        {/* FOOTER */}
+        <div className="cart-footer">
 
           <input
             className="input-cliente"
@@ -186,13 +214,44 @@ function Cliente({
             onChange={(e) => setEndereco(e.target.value)}
           />
 
-          <h3 style={{ marginTop: "10px" }}>
-            Total: R$ {total.toFixed(2)}
-          </h3>
+          {/* RESUMO */}
+          <div className="resumo">
+
+            <p>
+              Subtotal <span>R$ {total.toFixed(2)}</span>
+            </p>
+
+            <p>
+              Entrega{" "}
+              <span>
+                {frete === 0
+                  ? "Grátis 🎉"
+                  : `R$ ${frete.toFixed(2)}`}
+              </span>
+            </p>
+
+            {/* 🔥 FALTA PARA FRETE */}
+            {frete !== 0 && (
+              <p className="frete-info">
+                💡 Faltam <strong>R$ {faltaFrete.toFixed(2)}</strong> para frete grátis
+              </p>
+            )}
+
+            {frete === 0 && (
+              <p className="frete-ok">
+                🚀 Você ganhou frete grátis!
+              </p>
+            )}
+
+            <h3>
+              Total <span>R$ {totalFinal.toFixed(2)}</span>
+            </h3>
+
+          </div>
 
           <button
             className="finalizar-btn"
-            onClick={finalizarPedido}
+            onClick={() => finalizarPedido(totalFinal)}
             disabled={carrinho.length === 0}
           >
             Finalizar Pedido
