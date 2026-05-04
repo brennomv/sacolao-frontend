@@ -22,7 +22,6 @@ function App() {
 
   // 🔥 CLIENTE (supabase)
   const [clienteLogado, setClienteLogado] = useState(null);
-
   const [loadingAuth, setLoadingAuth] = useState(true);
 
   const [produtos, setProdutos] = useState([]);
@@ -33,8 +32,6 @@ function App() {
   const [endereco, setEndereco] = useState(() => localStorage.getItem("endereco") || "");
 
   const [whatsapp, setWhatsapp] = useState("5591999999999");
-
-  // 🔥 taxa entrega
   const [taxaEntrega, setTaxaEntrega] = useState(3);
 
   const total = carrinho.reduce(
@@ -43,36 +40,38 @@ function App() {
   );
 
   // =======================
-  // 🔐 SESSÃO SUPABASE
+  // 🔐 SESSÃO SUPABASE (CORRIGIDO)
   // =======================
   useEffect(() => {
 
-    // 🔥 1. Captura token da URL (login Google)
-    const hash = window.location.hash;
-
-    if (hash && hash.includes("access_token")) {
-      // limpa a URL depois do login
+    // 🔥 1. Remove token da URL (login Google)
+    if (window.location.hash.includes("access_token")) {
       window.history.replaceState({}, document.title, "/");
     }
 
-    // 🔥 2. Verifica sessão atual
-    async function checkUser() {
-      const { data } = await supabase.auth.getSession();
+    // 🔥 2. Pega usuário atual (FORMA CORRETA)
+    const getUser = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
 
-      if (data?.session?.user) {
-        setClienteLogado(data.session.user);
+      console.log("USER:", user);
+
+      if (user) {
+        setClienteLogado(user);
+      } else {
+        setClienteLogado(null);
       }
 
       setLoadingAuth(false);
-    }
+    };
 
-    checkUser();
+    getUser();
 
-    // 🔥 3. Escuta mudanças de autenticação
+    // 🔥 3. Escuta login/logout
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
 
-        console.log("EVENTO AUTH:", event);
+        console.log("EVENTO:", event);
+        console.log("SESSION:", session);
 
         if (session?.user) {
           setClienteLogado(session.user);
@@ -126,7 +125,7 @@ function App() {
   }, []);
 
   // =======================
-  // CONFIG (WHATS + TAXA)
+  // CONFIG
   // =======================
   useEffect(() => {
     axios.get(`${API}/config`)
@@ -247,7 +246,7 @@ function App() {
   // =======================
   // CLIENTE
   // =======================
-  if (clienteLogado) {
+  if (clienteLogado !== null) {
     return (
       <Cliente
         produtos={produtos}
