@@ -9,18 +9,15 @@ import Cliente from "./Cliente";
 
 import { supabase } from "./supabase";
 
-// 🔥 API
 const API = "https://sacolao-api.onrender.com";
 
 function App() {
 
-  // 🔥 ADMIN (persistente)
   const [usuario, setUsuario] = useState(() => {
     const saved = localStorage.getItem("admin");
     return saved ? JSON.parse(saved) : null;
   });
 
-  // 🔥 CLIENTE (supabase)
   const [clienteLogado, setClienteLogado] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
 
@@ -40,44 +37,51 @@ function App() {
   );
 
   // =======================
-  // 🔐 SESSÃO SUPABASE
+  // 🔐 AUTH SUPABASE (CORRIGIDO)
   // =======================
   useEffect(() => {
 
-    // limpa URL do Google OAuth
+    // limpa URL do OAuth sem quebrar sessão
     if (window.location.hash.includes("access_token")) {
-      window.history.replaceState({}, document.title, "/");
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    // 🔥 pega usuário logado (CORRIGIDO)
-    const getUser = async () => {
+    let mounted = true;
 
-      const { data: { user } } = await supabase.auth.getUser();
+    const initAuth = async () => {
 
-      if (user) {
-        setClienteLogado(user);
-      } else {
-        setClienteLogado(null);
+      // 🔥 pega sessão completa (mais confiável que getUser isolado)
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!mounted) return;
+
+      if (session?.user) {
+        setClienteLogado(session.user);
       }
 
       setLoadingAuth(false);
     };
 
-    getUser();
+    initAuth();
 
-    // listener login/logout
+    // 🔥 listener de auth
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
+
+        console.log("AUTH EVENT:", event);
 
         if (session?.user) {
           setClienteLogado(session.user);
         } else {
           setClienteLogado(null);
         }
+
+        setLoadingAuth(false);
       }
     );
 
     return () => {
+      mounted = false;
       listener.subscription.unsubscribe();
     };
 
@@ -126,17 +130,12 @@ function App() {
   useEffect(() => {
     axios.get(`${API}/config`)
       .then((res) => {
-        if (res.data?.whatsapp) {
-          setWhatsapp(res.data.whatsapp);
-        }
-
+        if (res.data?.whatsapp) setWhatsapp(res.data.whatsapp);
         if (res.data?.taxa_entrega !== undefined) {
           setTaxaEntrega(Number(res.data.taxa_entrega));
         }
       })
-      .catch(() => {
-        console.log("Erro ao carregar config");
-      });
+      .catch(() => console.log("Erro ao carregar config"));
   }, []);
 
   // =======================
@@ -264,9 +263,6 @@ function App() {
     );
   }
 
-  // =======================
-  // NÃO LOGADO
-  // =======================
   return <Login onLogin={handleLogin} />;
 }
 
