@@ -34,7 +34,7 @@ function App() {
 
   const [whatsapp, setWhatsapp] = useState("5591999999999");
 
-  // 🔥 NOVO: taxa entrega
+  // 🔥 taxa entrega
   const [taxaEntrega, setTaxaEntrega] = useState(3);
 
   const total = carrinho.reduce(
@@ -46,6 +46,16 @@ function App() {
   // 🔐 SESSÃO SUPABASE
   // =======================
   useEffect(() => {
+
+    // 🔥 1. Captura token da URL (login Google)
+    const hash = window.location.hash;
+
+    if (hash && hash.includes("access_token")) {
+      // limpa a URL depois do login
+      window.history.replaceState({}, document.title, "/");
+    }
+
+    // 🔥 2. Verifica sessão atual
     async function checkUser() {
       const { data } = await supabase.auth.getSession();
 
@@ -58,8 +68,12 @@ function App() {
 
     checkUser();
 
+    // 🔥 3. Escuta mudanças de autenticação
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
+
+        console.log("EVENTO AUTH:", event);
+
         if (session?.user) {
           setClienteLogado(session.user);
         } else {
@@ -71,6 +85,7 @@ function App() {
     return () => {
       listener.subscription.unsubscribe();
     };
+
   }, []);
 
   // =======================
@@ -178,7 +193,7 @@ function App() {
   }
 
   // =======================
-  // 🔥 FINALIZAR PEDIDO (COM FRETE)
+  // FINALIZAR PEDIDO
   // =======================
   function finalizarPedido() {
 
@@ -216,7 +231,7 @@ function App() {
   }
 
   // =======================
-  // ⏳ LOADING
+  // LOADING
   // =======================
   if (loadingAuth) {
     return <div style={{ padding: 20 }}>Carregando...</div>;

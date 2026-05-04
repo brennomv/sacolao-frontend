@@ -35,14 +35,23 @@ function Login({ onLogin }) {
   async function loginGoogle() {
     try {
       setLoading(true);
+      setErro("");
 
-      await supabase.auth.signInWithOAuth({
-        provider: "google"
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: window.location.origin // 🔥 IMPORTANTE
+        }
       });
+
+      if (error) {
+        console.log(error);
+        setErro("❌ Erro ao entrar com Google");
+      }
 
     } catch (err) {
       console.log(err);
-      setErro("❌ Erro ao entrar com Google");
+      setErro("❌ Erro inesperado no login Google");
     } finally {
       setLoading(false);
     }
@@ -59,6 +68,7 @@ function Login({ onLogin }) {
 
     try {
       setLoading(true);
+      setErro("");
 
       const { error } = await supabase.auth.signUp({
         email,
@@ -108,7 +118,7 @@ function Login({ onLogin }) {
 
         {/* ERRO */}
         {erro && (
-          <p style={{ color: "red", fontSize: "14px", textAlign: "center" }}>
+          <p style={{ color: erro.startsWith("✅") ? "green" : "red", fontSize: "14px", textAlign: "center" }}>
             {erro}
           </p>
         )}
@@ -135,7 +145,7 @@ function Login({ onLogin }) {
           style={{ background: "#4285F4" }}
           disabled={loading}
         >
-          🔵 Entrar com Google
+          {loading ? "Carregando..." : "🔵 Entrar com Google"}
         </button>
 
         {/* CADASTRO */}
@@ -146,7 +156,7 @@ function Login({ onLogin }) {
           style={{ background: "#6c757d" }}
           disabled={loading}
         >
-          🆕 Criar conta
+          {loading ? "Carregando..." : "🆕 Criar conta"}
         </button>
 
       </form>
@@ -155,4 +165,4 @@ function Login({ onLogin }) {
   );
 }
 
-export default Login;
+export default Login;S
