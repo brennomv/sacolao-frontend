@@ -13,11 +13,17 @@ const API = "https://sacolao-api.onrender.com";
 
 function App() {
 
+  // =======================
+  // ADMIN
+  // =======================
   const [usuario, setUsuario] = useState(() => {
     const saved = localStorage.getItem("admin");
     return saved ? JSON.parse(saved) : null;
   });
 
+  // =======================
+  // CLIENTE (SUPABASE)
+  // =======================
   const [clienteLogado, setClienteLogado] = useState(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
 
@@ -37,45 +43,30 @@ function App() {
   );
 
   // =======================
-  // 🔐 AUTH SUPABASE (CORRIGIDO)
+  // 🔐 AUTH SUPABASE (CORRIGIDO DE VERDADE)
   // =======================
   useEffect(() => {
-
-    // limpa URL do OAuth sem quebrar sessão
-    if (window.location.hash.includes("access_token")) {
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
 
     let mounted = true;
 
     const initAuth = async () => {
 
-      // 🔥 pega sessão completa (mais confiável que getUser isolado)
+      // pega sessão restaurada (IMPORTANTE)
       const { data: { session } } = await supabase.auth.getSession();
 
       if (!mounted) return;
 
-      if (session?.user) {
-        setClienteLogado(session.user);
-      }
-
+      setClienteLogado(session?.user ?? null);
       setLoadingAuth(false);
     };
 
     initAuth();
 
-    // 🔥 listener de auth
+    // listener de auth (fonte da verdade)
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (_event, session) => {
 
-        console.log("AUTH EVENT:", event);
-
-        if (session?.user) {
-          setClienteLogado(session.user);
-        } else {
-          setClienteLogado(null);
-        }
-
+        setClienteLogado(session?.user ?? null);
         setLoadingAuth(false);
       }
     );
@@ -263,6 +254,9 @@ function App() {
     );
   }
 
+  // =======================
+  // LOGIN
+  // =======================
   return <Login onLogin={handleLogin} />;
 }
 
