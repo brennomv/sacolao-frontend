@@ -40,20 +40,19 @@ function App() {
   );
 
   // =======================
-  // 🔐 SESSÃO SUPABASE (CORRIGIDO)
+  // 🔐 SESSÃO SUPABASE
   // =======================
   useEffect(() => {
 
-    // 🔥 1. Remove token da URL (login Google)
+    // limpa URL do Google OAuth
     if (window.location.hash.includes("access_token")) {
       window.history.replaceState({}, document.title, "/");
     }
 
-    // 🔥 2. Pega usuário atual (FORMA CORRETA)
+    // 🔥 pega usuário logado (CORRIGIDO)
     const getUser = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
 
-      console.log("USER:", user);
+      const { data: { user } } = await supabase.auth.getUser();
 
       if (user) {
         setClienteLogado(user);
@@ -66,12 +65,9 @@ function App() {
 
     getUser();
 
-    // 🔥 3. Escuta login/logout
+    // listener login/logout
     const { data: listener } = supabase.auth.onAuthStateChange(
       (event, session) => {
-
-        console.log("EVENTO:", event);
-        console.log("SESSION:", session);
 
         if (session?.user) {
           setClienteLogado(session.user);
@@ -246,7 +242,7 @@ function App() {
   // =======================
   // CLIENTE
   // =======================
-  if (clienteLogado !== null) {
+  if (clienteLogado) {
     return (
       <Cliente
         produtos={produtos}
